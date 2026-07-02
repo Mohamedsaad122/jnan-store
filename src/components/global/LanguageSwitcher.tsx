@@ -19,9 +19,7 @@ export const LanguageSwitcher: React.FC = () => {
       aria-label="تغيير اللغة / Change Language"
     >
       <Globe className="h-4 w-4 opacity-75" />
-      <span className="text-xs font-semibold">
-        {language === 'ar' ? 'EN' : 'عربي'}
-      </span>
+      <span className="text-xs font-semibold">{language === 'ar' ? 'EN' : 'عربي'}</span>
     </Button>
   );
 };

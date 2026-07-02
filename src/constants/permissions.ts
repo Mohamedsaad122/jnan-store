@@ -8,6 +8,6 @@ export const PERMISSIONS = {
   ACCESS_DASHBOARD: 'access:dashboard',
 } as const;
 
-export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS];
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 export default PERMISSIONS;

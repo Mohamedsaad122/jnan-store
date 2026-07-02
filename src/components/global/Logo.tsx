@@ -9,7 +9,7 @@ export const Logo: React.FC<{ className?: string }> = ({ className }) => {
       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-gold border border-gold/20 shadow-inner">
         <Coffee className="h-5 w-5" />
       </div>
-      
+
       {/* Brand Text (Arabic / English metadata) */}
       <div className="flex flex-col text-right">
         <span className="font-tajawal text-base font-bold leading-tight text-primary dark:text-gold">

@@ -4,6 +4,6 @@ export const ROLES = {
   MERCHANT: 'merchant',
 } as const;
 
-export type UserRole = typeof ROLES[keyof typeof ROLES];
+export type UserRole = (typeof ROLES)[keyof typeof ROLES];
 
 export default ROLES;

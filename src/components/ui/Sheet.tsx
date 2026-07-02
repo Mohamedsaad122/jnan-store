@@ -101,9 +101,7 @@ export const Sheet: React.FC<SheetProps> = ({
                 <X className="h-5 w-5" />
               </button>
               {title && (
-                <h2 className="font-tajawal text-lg font-semibold text-primary">
-                  {title}
-                </h2>
+                <h2 className="font-tajawal text-lg font-semibold text-primary">{title}</h2>
               )}
             </div>
 

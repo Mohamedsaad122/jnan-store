@@ -23,7 +23,11 @@ export const useCartStore = create<CartState>((set) => ({
   isOpen: false,
   totalAmount: 0,
   totalQuantity: 0,
-  setItems: (items) => set({ items }),
+  setItems: (items) => {
+    const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+    const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    set({ items, totalQuantity, totalAmount });
+  },
   setOpen: (isOpen) => set({ isOpen }),
   reset: () => set({ items: [], totalAmount: 0, totalQuantity: 0, isOpen: false }),
 }));

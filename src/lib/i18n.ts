@@ -29,7 +29,7 @@ export const updateLayoutDirection = (lang: string) => {
   const dir = lang.startsWith('ar') ? 'rtl' : 'ltr';
   document.documentElement.dir = dir;
   document.documentElement.lang = lang;
-  
+
   // Set fonts based on language
   if (dir === 'rtl') {
     document.body.classList.remove('font-sans');

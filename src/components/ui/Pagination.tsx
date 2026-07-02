@@ -31,7 +31,10 @@ export const Pagination: React.FC<PaginationProps> = ({
     <nav
       role="navigation"
       aria-label="Pagination"
-      className={twMerge('flex justify-center items-center space-x-1 space-x-reverse py-4 font-tajawal', className)}
+      className={twMerge(
+        'flex justify-center items-center space-x-1 space-x-reverse py-4 font-tajawal',
+        className
+      )}
     >
       {/* Previous Button */}
       <button

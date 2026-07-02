@@ -24,7 +24,12 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose }) =
   ];
 
   return (
-    <Sheet isOpen={isOpen} onClose={onClose} side={isRtl ? 'right' : 'left'} title="القائمة الرئيسية">
+    <Sheet
+      isOpen={isOpen}
+      onClose={onClose}
+      side={isRtl ? 'right' : 'left'}
+      title="القائمة الرئيسية"
+    >
       <div className="flex flex-col space-y-4 py-4 font-tajawal text-right">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
@@ -35,7 +40,9 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose }) =
               to={item.path}
               onClick={onClose}
               className={`block py-2 text-base font-medium border-b border-border/40 transition-colors ${
-                isActive ? 'text-primary dark:text-gold font-bold' : 'text-muted-foreground hover:text-gold'
+                isActive
+                  ? 'text-primary dark:text-gold font-bold'
+                  : 'text-muted-foreground hover:text-gold'
               }`}
             >
               {item.label}

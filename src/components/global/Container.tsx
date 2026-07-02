@@ -1,12 +1,13 @@
 import React from 'react';
 import { twMerge } from 'tailwind-merge';
 
-export const Container: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, className, ...props }) => {
+export const Container: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  children,
+  className,
+  ...props
+}) => {
   return (
-    <div
-      className={twMerge('mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8', className)}
-      {...props}
-    >
+    <div className={twMerge('mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8', className)} {...props}>
       {children}
     </div>
   );

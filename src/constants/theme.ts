@@ -3,7 +3,7 @@ export const THEME_MODES = {
   DARK: 'dark',
 } as const;
 
-export type ThemeMode = typeof THEME_MODES[keyof typeof THEME_MODES];
+export type ThemeMode = (typeof THEME_MODES)[keyof typeof THEME_MODES];
 
 export const THEME_COLORS = {
   COFFEE: '#4A3525',

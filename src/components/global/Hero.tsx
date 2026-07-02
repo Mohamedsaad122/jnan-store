@@ -87,14 +87,12 @@ export const Hero: React.FC = () => {
               variants={itemVariants}
               className="text-sm md:text-base text-muted-foreground max-w-xl leading-relaxed select-text"
             >
-              اخترنا لكم بعناية فائقة أجود أنواع القهوة السعودية الفاخرة، المكسرات المحمصة الطازجة، والحلويات والهدايا المصممة خصيصاً لتليق بضيافتكم الراقية.
+              اخترنا لكم بعناية فائقة أجود أنواع القهوة السعودية الفاخرة، المكسرات المحمصة الطازجة،
+              والحلويات والهدايا المصممة خصيصاً لتليق بضيافتكم الراقية.
             </motion.p>
 
             {/* Calls To Action Buttons */}
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-wrap items-center gap-3 pt-2"
-            >
+            <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-3 pt-2">
               <Link to={ROUTES.SHOP}>
                 <Button
                   variant="gold"
@@ -147,8 +145,12 @@ export const Hero: React.FC = () => {
               <div className="absolute inset-0 bg-radial from-gold/10 to-transparent pointer-events-none" />
 
               <div className="text-center space-y-2 relative z-10">
-                <span className="text-[10px] text-gold font-bold uppercase tracking-wider">الإصدار المحدود</span>
-                <h3 className="font-bold text-lg text-primary font-tajawal">القهوة الهررية الفاخرة</h3>
+                <span className="text-[10px] text-gold font-bold uppercase tracking-wider">
+                  الإصدار المحدود
+                </span>
+                <h3 className="font-bold text-lg text-primary font-tajawal">
+                  القهوة الهررية الفاخرة
+                </h3>
               </div>
 
               {/* Showcase Coffee Dallah graphic */}
@@ -176,7 +178,9 @@ export const Hero: React.FC = () => {
               <div className="h-2 w-2 rounded-full bg-cardamom animate-ping" />
               <div className="text-right">
                 <p className="text-[9px] text-muted-foreground leading-none">مكونات أصيلة</p>
-                <p className="text-[10px] font-bold text-primary font-tajawal mt-1">هيل هندي نخب أول</p>
+                <p className="text-[10px] font-bold text-primary font-tajawal mt-1">
+                  هيل هندي نخب أول
+                </p>
               </div>
             </motion.div>
 
@@ -188,7 +192,9 @@ export const Hero: React.FC = () => {
             >
               <div className="text-right">
                 <p className="text-[9px] text-muted-foreground leading-none">تعبئة فاخرة</p>
-                <p className="text-[10px] font-bold text-primary font-tajawal mt-1">حبوب محمصة حديثاً</p>
+                <p className="text-[10px] font-bold text-primary font-tajawal mt-1">
+                  حبوب محمصة حديثاً
+                </p>
               </div>
               <div className="h-6 w-6 rounded bg-gold-light/20 flex items-center justify-center text-gold">
                 🔥
@@ -210,7 +216,9 @@ export const Hero: React.FC = () => {
           className="w-full flex justify-center pt-16 md:pt-20 select-none pointer-events-none"
         >
           <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] font-tajawal text-muted-foreground font-semibold">اسحب للأسفل لاستكشاف المزيد</span>
+            <span className="text-[10px] font-tajawal text-muted-foreground font-semibold">
+              اسحب للأسفل لاستكشاف المزيد
+            </span>
             <MousePointerClick className="h-4 w-4 text-gold rotate-90" />
           </div>
         </motion.div>

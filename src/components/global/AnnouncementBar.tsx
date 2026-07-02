@@ -8,9 +8,18 @@ export const AnnouncementBar: React.FC = () => {
   const [index, setIndex] = useState(0);
 
   const messages = [
-    { ar: '🇸🇦 متجر سعودي أصيل وموثوق ١٠٠٪ في التمور والبهارات والقهوة', en: '🇸🇦 100% Trusted & Authentic Saudi Specialty Store' },
-    { ar: '✨ شحن مجاني للطلبات فوق ٢٠٠ ر.س مباشرة لباب منزلك', en: '✨ Free shipping for orders above 200 SAR to your doorstep' },
-    { ar: '⚡ عروض الموسم الحصرية! احصل على كود خصم إضافي: JNAN26', en: '⚡ Season Exclusives! Use extra promo code: JNAN26' }
+    {
+      ar: '🇸🇦 متجر سعودي أصيل وموثوق ١٠٠٪ في التمور والبهارات والقهوة',
+      en: '🇸🇦 100% Trusted & Authentic Saudi Specialty Store',
+    },
+    {
+      ar: '✨ شحن مجاني للطلبات فوق ٢٠٠ ر.س مباشرة لباب منزلك',
+      en: '✨ Free shipping for orders above 200 SAR to your doorstep',
+    },
+    {
+      ar: '⚡ عروض الموسم الحصرية! احصل على كود خصم إضافي: JNAN26',
+      en: '⚡ Season Exclusives! Use extra promo code: JNAN26',
+    },
   ];
 
   useEffect(() => {

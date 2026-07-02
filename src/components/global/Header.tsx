@@ -7,7 +7,12 @@ import SearchBar from '@/components/global/SearchBar';
 import LanguageSwitcher from '@/components/global/LanguageSwitcher';
 import ThemeSwitcher from '@/components/global/ThemeSwitcher';
 import { Button } from '@/components/ui/Button';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/DropdownMenu';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/DropdownMenu';
 import { Avatar } from '@/components/ui/Avatar';
 import { useCartStore } from '@/store/cart.store';
 import { useWishlistStore } from '@/store/wishlist.store';
@@ -63,7 +68,6 @@ export const Header: React.FC = () => {
         {/* Header content menu */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between gap-4">
-            
             {/* Left elements: mobile menu trigger & logo */}
             <div className="flex items-center space-x-2 space-x-reverse">
               <Button
@@ -149,22 +153,34 @@ export const Header: React.FC = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger>
                     <button className="flex items-center focus:outline-none" aria-label="حسابي">
-                      <Avatar src={user.avatarUrl} fallbackText={user.name} className="h-8 w-8 cursor-pointer hover:border-gold/50" />
+                      <Avatar
+                        src={user.avatarUrl}
+                        fallbackText={user.name}
+                        className="h-8 w-8 cursor-pointer hover:border-gold/50"
+                      />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-48">
                     <div className="px-3 py-2 border-b text-right">
                       <p className="text-xs text-muted-foreground font-tajawal">مرحباً بك</p>
-                      <p className="text-sm font-semibold truncate text-primary font-tajawal">{user.name}</p>
+                      <p className="text-sm font-semibold truncate text-primary font-tajawal">
+                        {user.name}
+                      </p>
                     </div>
                     <DropdownMenuItem>
-                      <Link to={ROUTES.PROFILE} className="w-full text-right block font-tajawal">الملف الشخصي</Link>
+                      <Link to={ROUTES.PROFILE} className="w-full text-right block font-tajawal">
+                        الملف الشخصي
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Link to={ROUTES.ORDERS} className="w-full text-right block font-tajawal">طلباتي</Link>
+                      <Link to={ROUTES.ORDERS} className="w-full text-right block font-tajawal">
+                        طلباتي
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Link to={ROUTES.SETTINGS} className="w-full text-right block font-tajawal">الإعدادات</Link>
+                      <Link to={ROUTES.SETTINGS} className="w-full text-right block font-tajawal">
+                        الإعدادات
+                      </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

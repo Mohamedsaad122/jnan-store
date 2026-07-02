@@ -14,5 +14,46 @@
     "categories": "Categories",
     "about": "About Us",
     "contact": "Contact Us"
+  },
+  "home": {
+    "categories": {
+      "title": "Shop by Categories",
+      "subtitle": "Choose from our premium selections carefully prepared to suit your high taste.",
+      "all": "Browse All Categories"
+    },
+    "featured": {
+      "title": "Featured Products",
+      "subtitle": "A carefully selected group of our best and most popular premium quality products.",
+      "all": "View All Products"
+    },
+    "flash": {
+      "title": "Exclusive Limited Offers",
+      "subtitle": "Seize the opportunity now and get a premium selection at exceptional discounts.",
+      "all": "Browse Offers"
+    }
+  },
+  "category": {
+    "saudi_coffee": "Saudi Coffee",
+    "specialty_coffee": "Specialty Coffee",
+    "dates": "Premium Dates",
+    "nuts": "Nuts",
+    "accessories": "Coffee Accessories",
+    "sweets": "Sweets & Chocolates"
+  },
+  "product": {
+    "out_of_stock": "Out of Stock",
+    "low_stock": "Low Stock",
+    "add_to_cart": "Add to Cart",
+    "reviews_count_one": "1 review",
+    "reviews_count_other": "{{count}} reviews"
+  },
+  "cart": {
+    "added_success": "Product added to cart successfully"
+  },
+  "wishlist": {
+    "added": "Added to wishlist",
+    "removed": "Removed from wishlist",
+    "add_label": "Add to wishlist",
+    "remove_label": "Remove from wishlist"
   }
 }

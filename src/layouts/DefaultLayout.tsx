@@ -43,7 +43,9 @@ export const DefaultLayout: React.FC = () => {
                 <ShoppingBag className="h-6 w-6" />
               </div>
               <p className="text-sm font-semibold text-primary mb-1">سلتك فارغة حالياً</p>
-              <p className="text-xs text-muted-foreground mb-6">تصفح أقسام المتجر وأضف منتجاتك المفضلة</p>
+              <p className="text-xs text-muted-foreground mb-6">
+                تصفح أقسام المتجر وأضف منتجاتك المفضلة
+              </p>
               <Button onClick={() => setCartOpen(false)} variant="gold" size="sm">
                 تصفح المنتجات
               </Button>
@@ -53,12 +55,17 @@ export const DefaultLayout: React.FC = () => {
             <div className="flex flex-col h-full justify-between">
               <div className="flex-grow overflow-y-auto space-y-4">
                 {items.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 border rounded-lg bg-card/50">
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-3 border rounded-lg bg-card/50"
+                  >
                     <div className="text-right">
                       <p className="text-sm font-bold text-primary">{item.name}</p>
                       <p className="text-xs text-muted-foreground">الكمية: {item.quantity}</p>
                     </div>
-                    <span className="text-sm font-semibold text-gold">{item.price * item.quantity} ر.س</span>
+                    <span className="text-sm font-semibold text-gold">
+                      {item.price * item.quantity} ر.س
+                    </span>
                   </div>
                 ))}
               </div>
@@ -70,7 +77,10 @@ export const DefaultLayout: React.FC = () => {
                   <span className="text-gold">{totalAmount} ر.س</span>
                 </div>
                 <Link to={ROUTES.CHECKOUT} onClick={() => setCartOpen(false)}>
-                  <Button variant="primary" className="w-full flex items-center justify-center gap-2">
+                  <Button
+                    variant="primary"
+                    className="w-full flex items-center justify-center gap-2"
+                  >
                     <span>إتمام الطلب</span>
                     <ArrowRight className="h-4 w-4" />
                   </Button>

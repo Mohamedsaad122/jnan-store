@@ -3,13 +3,16 @@ import { useWishlistStore } from '@/store/wishlist.store';
 export const useWishlist = () => {
   const { itemIds, setItemIds, reset } = useWishlistStore();
 
-  const toggleWishlist = () => {
-    // Infrastructure actions placeholder
+  const toggleWishlist = (productId: string) => {
+    if (itemIds.includes(productId)) {
+      setItemIds(itemIds.filter((id) => id !== productId));
+    } else {
+      setItemIds([...itemIds, productId]);
+    }
   };
 
-  const isInWishlist = (_productId: string): boolean => {
-    // Infrastructure actions placeholder
-    return false;
+  const isInWishlist = (productId: string): boolean => {
+    return itemIds.includes(productId);
   };
 
   return {

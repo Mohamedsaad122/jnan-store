@@ -22,7 +22,9 @@ export const DropdownMenu: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-export const DropdownMenuTrigger: React.FC<{ children: React.ReactElement<any> }> = ({ children }) => {
+export const DropdownMenuTrigger: React.FC<{ children: React.ReactElement<any> }> = ({
+  children,
+}) => {
   const context = useContext(DropdownContext);
   if (!context) throw new Error('DropdownMenuTrigger must be used inside DropdownMenu');
 

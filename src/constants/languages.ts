@@ -3,7 +3,7 @@ export const LANGUAGES = {
   EN: 'en',
 } as const;
 
-export type SupportedLanguage = typeof LANGUAGES[keyof typeof LANGUAGES];
+export type SupportedLanguage = (typeof LANGUAGES)[keyof typeof LANGUAGES];
 
 export const LANGUAGE_DETAILS = {
   ar: {

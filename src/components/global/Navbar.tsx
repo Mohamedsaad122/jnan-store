@@ -13,7 +13,11 @@ export const Navbar: React.FC = () => {
     { label: 'الرئيسية', path: ROUTES.HOME },
     { label: 'المتجر', path: ROUTES.SHOP, hasMenu: true, menuType: 'shop' },
     { label: 'الأقسام', path: ROUTES.CATEGORIES, hasMenu: true, menuType: 'categories' },
-    { label: 'الأكثر مبيعاً', path: '/best-sellers', icon: <Flame className="h-3.5 w-3.5 text-gold" /> },
+    {
+      label: 'الأكثر مبيعاً',
+      path: '/best-sellers',
+      icon: <Flame className="h-3.5 w-3.5 text-gold" />,
+    },
     { label: 'العروض', path: '/offers', icon: <Sparkles className="h-3.5 w-3.5 text-gold" /> },
     { label: 'اتصل بنا', path: ROUTES.CONTACT },
   ];
@@ -32,12 +36,22 @@ export const Navbar: React.FC = () => {
     {
       title: 'الحلويات والشوكولاتة',
       icon: <Candy className="h-4 w-4 text-gold" />,
-      items: ['تمور محشية باللوز', 'شوكولاتة بلجيكية فاخرة', 'معمول بالتمر والهيل', 'بسبوسة بالزعفران'],
+      items: [
+        'تمور محشية باللوز',
+        'شوكولاتة بلجيكية فاخرة',
+        'معمول بالتمر والهيل',
+        'بسبوسة بالزعفران',
+      ],
     },
     {
       title: 'الهدايا والتغليف',
       icon: <Package className="h-4 w-4 text-gold" />,
-      items: ['صناديق هدايا فاخرة', 'سلال العيد والمناسبات', 'تغليف الهيل والزعفران المخصص', 'بطاقات إهداء فاخرة'],
+      items: [
+        'صناديق هدايا فاخرة',
+        'سلال العيد والمناسبات',
+        'تغليف الهيل والزعفران المخصص',
+        'بطاقات إهداء فاخرة',
+      ],
     },
   ];
 
@@ -54,7 +68,9 @@ export const Navbar: React.FC = () => {
           <div
             key={link.path}
             className="relative py-5 cursor-pointer"
-            onMouseEnter={() => link.hasMenu && link.menuType ? setActiveMenu(link.menuType) : setActiveMenu(null)}
+            onMouseEnter={() =>
+              link.hasMenu && link.menuType ? setActiveMenu(link.menuType) : setActiveMenu(null)
+            }
           >
             <Link
               to={link.path}
@@ -67,7 +83,10 @@ export const Navbar: React.FC = () => {
               <span>{link.label}</span>
               {link.hasMenu && (
                 <ChevronDown
-                  className={clsx('h-3.5 w-3.5 transition-transform duration-200', hasActiveDropdown && 'rotate-180')}
+                  className={clsx(
+                    'h-3.5 w-3.5 transition-transform duration-200',
+                    hasActiveDropdown && 'rotate-180'
+                  )}
                 />
               )}
             </Link>
@@ -116,9 +135,15 @@ export const Navbar: React.FC = () => {
                     transition={{ duration: 0.2, ease: 'easeOut' }}
                     className="absolute right-0 top-full mt-1 w-48 rounded-lg border bg-card p-2 shadow-lg text-card-foreground z-50 text-right text-xs space-y-1"
                   >
-                    <div className="hover:bg-accent hover:text-gold rounded p-2 transition-colors cursor-pointer">المتجر الرئيسي</div>
-                    <div className="hover:bg-accent hover:text-gold rounded p-2 transition-colors cursor-pointer">وصلنا حديثاً</div>
-                    <div className="hover:bg-accent hover:text-gold rounded p-2 transition-colors cursor-pointer">عروض ترويجية</div>
+                    <div className="hover:bg-accent hover:text-gold rounded p-2 transition-colors cursor-pointer">
+                      المتجر الرئيسي
+                    </div>
+                    <div className="hover:bg-accent hover:text-gold rounded p-2 transition-colors cursor-pointer">
+                      وصلنا حديثاً
+                    </div>
+                    <div className="hover:bg-accent hover:text-gold rounded p-2 transition-colors cursor-pointer">
+                      عروض ترويجية
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>

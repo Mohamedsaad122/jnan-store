@@ -7,13 +7,7 @@ export interface ScrollAreaProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const ScrollArea: React.FC<ScrollAreaProps> = ({ children, className, ...props }) => {
   return (
-    <div
-      className={twMerge(
-        'h-full w-full overflow-auto pr-1 select-none',
-        className
-      )}
-      {...props}
-    >
+    <div className={twMerge('h-full w-full overflow-auto pr-1 select-none', className)} {...props}>
       {children}
     </div>
   );
