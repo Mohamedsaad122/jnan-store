@@ -1,28 +1,28 @@
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import DefaultLayout from '../layouts/DefaultLayout';
-import AuthLayout from '../layouts/AuthLayout';
-import LoadingSpinner from '../components/LoadingSpinner';
+import DefaultLayout from '@/layouts/DefaultLayout';
+import AuthLayout from '@/layouts/AuthLayout';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 // Lazy load page components
-const Home = lazy(() => import('../pages/Home'));
-const Shop = lazy(() => import('../pages/Shop'));
-const ProductDetails = lazy(() => import('../pages/ProductDetails'));
-const Categories = lazy(() => import('../pages/Categories'));
-const Wishlist = lazy(() => import('../pages/Wishlist'));
-const Cart = lazy(() => import('../pages/Cart'));
-const Checkout = lazy(() => import('../pages/Checkout'));
-const Login = lazy(() => import('../pages/Login'));
-const Register = lazy(() => import('../pages/Register'));
-const VerifyAccount = lazy(() => import('../pages/VerifyAccount'));
-const ForgotPassword = lazy(() => import('../pages/ForgotPassword'));
-const ResetPassword = lazy(() => import('../pages/ResetPassword'));
-const Orders = lazy(() => import('../pages/Orders'));
-const Profile = lazy(() => import('../pages/Profile'));
-const Settings = lazy(() => import('../pages/Settings'));
-const About = lazy(() => import('../pages/About'));
-const Contact = lazy(() => import('../pages/Contact'));
-const NotFound = lazy(() => import('../pages/NotFound'));
+const Home = lazy(() => import('@/pages/Home'));
+const Shop = lazy(() => import('@/pages/Shop'));
+const ProductDetails = lazy(() => import('@/pages/ProductDetails'));
+const Categories = lazy(() => import('@/pages/Categories'));
+const Wishlist = lazy(() => import('@/pages/Wishlist'));
+const Cart = lazy(() => import('@/pages/Cart'));
+const Checkout = lazy(() => import('@/pages/Checkout'));
+const Login = lazy(() => import('@/pages/Login'));
+const Register = lazy(() => import('@/pages/Register'));
+const VerifyAccount = lazy(() => import('@/pages/VerifyAccount'));
+const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
+const Orders = lazy(() => import('@/pages/Orders'));
+const Profile = lazy(() => import('@/pages/Profile'));
+const Settings = lazy(() => import('@/pages/Settings'));
+const About = lazy(() => import('@/pages/About'));
+const Contact = lazy(() => import('@/pages/Contact'));
+const NotFound = lazy(() => import('@/pages/NotFound'));
 
 const AppRoutes: React.FC = () => {
   return (

@@ -1,7 +1,8 @@
-import apiClient from './apiClient';
-import { LoginCredentials, RegisterCredentials, AuthResponse, UserProfile } from '../types/auth';
+import apiClient from '@/services/api/api';
+import { IAuthService } from '@/interfaces/auth.interface';
+import { LoginCredentials, RegisterCredentials, AuthResponse, UserProfile } from '@/types/auth';
 
-export const authService = {
+export const authService: IAuthService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
     return response.data;
@@ -33,4 +34,5 @@ export const authService = {
     await apiClient.post('/auth/logout');
   },
 };
+
 export default authService;
