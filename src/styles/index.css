@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm Cream Background */
+    --background: #FDFBF7;
+    --foreground: #2A1F19; /* Coffee Charcoal */
+
+    --card: #F9F6F0;
+    --card-foreground: #2A1F19;
+
+    --popover: #FDFBF7;
+    --popover-foreground: #2A1F19;
+
+    /* Coffee Brown (Primary) */
+    --primary: #4A3525;
+    --primary-foreground: #FDFBF7;
+
+    /* Luxury Gold (Accent) */
+    --gold: #C5A880;
+    --gold-foreground: #1E1510;
+    --gold-light: #F4ECE1;
+
+    /* Cardamom Green (Support) */
+    --cardamom: #4F6F52;
+    --cardamom-foreground: #FDFBF7;
+    --cardamom-light: #E8EFE9;
+
+    --secondary: #C5A880;
+    --secondary-foreground: #1E1510;
+
+    --muted: #8E7D73;
+    --muted-foreground: #5C4D43;
+
+    --accent: #C5A880;
+    --accent-foreground: #1E1510;
+
+    --destructive: #A3423C;
+    --destructive-foreground: #FDFBF7;
+
+    --border: #EFEAE2;
+    --input: #EFEAE2;
+    --ring: #C5A880;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Dark Coffee Theme */
+    --background: #120C08;
+    --foreground: #F5EFE6;
+
+    --card: #1C130D;
+    --card-foreground: #F5EFE6;
+
+    --popover: #120C08;
+    --popover-foreground: #F5EFE6;
+
+    /* Luxury Gold becomes Primary Accent in Dark Mode */
+    --primary: #C5A880;
+    --primary-foreground: #120C08;
+
+    --secondary: #1C130D;
+    --secondary-foreground: #F5EFE6;
+
+    --gold: #C5A880;
+    --gold-foreground: #120C08;
+    --gold-light: #2A1F19;
+
+    /* Cardamom Green is lighter in dark mode */
+    --cardamom: #6A8E72;
+    --cardamom-foreground: #120C08;
+    --cardamom-light: #1C271E;
+
+    --muted: #4A392F;
+    --muted-foreground: #B5A499;
+
+    --accent: #C5A880;
+    --accent-foreground: #120C08;
+
+    --destructive: #CF665F;
+    --destructive-foreground: #120C08;
+
+    --border: #2A1F19;
+    --input: #2A1F19;
+    --ring: #C5A880;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  
+  /* RTL adjustments */
+  [dir="rtl"] {
+    font-family: 'Tajawal', 'Inter', sans-serif;
+  }
+  
+  [dir="ltr"] {
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+/* Custom Micro-interactions & Core Layouts */
+.glassmorphism {
+  background: rgba(253, 251, 247, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(197, 168, 128, 0.15);
+}
+
+.dark .glassmorphism {
+  background: rgba(28, 19, 13, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(197, 168, 128, 0.1);
+}
+
+/* Custom smooth transitions */
+.transition-theme {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+  opacity: 0.3;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}

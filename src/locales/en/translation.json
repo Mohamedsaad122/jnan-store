@@ -1,0 +1,18 @@
+{
+  "common": {
+    "appName": "Jnan Store",
+    "search": "Search...",
+    "cart": "Shopping Cart",
+    "wishlist": "Wishlist",
+    "profile": "Profile",
+    "loading": "Loading...",
+    "error": "Something went wrong"
+  },
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "categories": "Categories",
+    "about": "About Us",
+    "contact": "Contact Us"
+  }
+}
