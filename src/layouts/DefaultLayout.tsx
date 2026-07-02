@@ -18,7 +18,7 @@ export const DefaultLayout: React.FC = () => {
       <Header />
 
       {/* Main page content body */}
-      <main className="flex-grow pb-16 md:pb-0">
+      <main className="flex-grow pb-16 md:pb-0 pt-[100px]">
         <Outlet />
       </main>
 
