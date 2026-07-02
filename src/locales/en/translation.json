@@ -87,6 +87,11 @@
     "brands": {
       "title": "Partners of Success & Authenticity",
       "subtitle": "We take pride in cooperating with the finest local coffee estates and national date factories to ensure premium quality."
+    },
+    "instagram": {
+      "title": "Jnan on Instagram",
+      "subtitle": "Follow our account for more hospitality captures, special coffee recipes, and open workshop shots.",
+      "follow": "Follow @jnan_store"
     }
   },
   "category": {
@@ -112,5 +117,39 @@
     "removed": "Removed from wishlist",
     "add_label": "Add to wishlist",
     "remove_label": "Remove from wishlist"
+  },
+  "newsletter": {
+    "title": "Join Our Newsletter",
+    "subtitle": "Subscribe to receive our exclusive offers, special coffee recipes, and our newest products before anyone else.",
+    "placeholder": "Enter your email address...",
+    "button": "Subscribe Now",
+    "success": "Subscribed successfully!",
+    "aria_input": "Email subscription input",
+    "error": {
+      "invalid": "Please enter a valid email",
+      "generic": "Something went wrong, please try again."
+    }
+  },
+  "footer": {
+    "desc": "Jnan Store offers a premium selection of authentic Saudi coffee, specialty beans, freshly roasted nuts, chocolates and sweets of the highest standards.",
+    "quick_links": "Quick Links",
+    "policies": "Policies & Privacy",
+    "contact_us": "Contact Us",
+    "copyright": "Jnan Store. All rights reserved.",
+    "policy": {
+      "refund": "Refund Policy",
+      "terms": "Terms of Use",
+      "shipping": "Shipping & Delivery Policy"
+    },
+    "info": {
+      "address": "Riyadh, Kingdom of Saudi Arabia",
+      "email": "Email: support@jnan-sa.com",
+      "tax": "Tax-registered Store"
+    },
+    "pay": {
+      "mada": "Mada",
+      "visa": "Visa",
+      "master": "Mastercard"
+    }
   }
 }
