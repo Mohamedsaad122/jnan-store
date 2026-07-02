@@ -3,6 +3,10 @@ import Hero from '@/components/global/Hero';
 import CategoriesGrid from '@/features/home/components/categories/CategoriesGrid';
 import FeaturedProducts from '@/features/home/components/featured-products/FeaturedProducts';
 import FlashSale from '@/features/home/components/flash-sale/FlashSale';
+import BestSellers from '@/features/home/components/best-sellers/BestSellers';
+import WhyChooseUs from '@/features/home/components/why-choose-us/WhyChooseUs';
+import Testimonials from '@/features/home/components/testimonials/Testimonials';
+import PartnerBrands from '@/features/home/components/partner-brands/PartnerBrands';
 
 const Home: React.FC = () => {
   return (
@@ -11,6 +15,10 @@ const Home: React.FC = () => {
       <CategoriesGrid />
       <FeaturedProducts />
       <FlashSale />
+      <BestSellers />
+      <WhyChooseUs />
+      <Testimonials />
+      <PartnerBrands />
     </div>
   );
 };

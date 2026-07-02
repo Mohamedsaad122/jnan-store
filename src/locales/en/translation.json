@@ -30,6 +30,63 @@
       "title": "Exclusive Limited Offers",
       "subtitle": "Seize the opportunity now and get a premium selection at exceptional discounts.",
       "all": "Browse Offers"
+    },
+    "best_sellers": {
+      "title": "Best Sellers",
+      "subtitle": "Our customer favorites and the top-selling products in our store.",
+      "all": "Browse All Products"
+    },
+    "why_us": {
+      "title": "Why Jnan Store?",
+      "subtitle": "We bring you a blend of authentic taste and luxury presentation for a unique Saudi hospitality experience.",
+      "features": {
+        "hospitality": {
+          "title": "Saudi Hospitality",
+          "desc": "We offer products carefully selected to represent traditional heritage in your hospitality."
+        },
+        "quality": {
+          "title": "Guaranteed Natural Quality",
+          "desc": "Our products are fresh, free from preservatives and additives, guaranteeing 100% purity."
+        },
+        "packaging": {
+          "title": "Luxury Packaging",
+          "desc": "Premium and elegant packaging custom designed for gifting and serving guests."
+        },
+        "delivery": {
+          "title": "Fast Nationwide Delivery",
+          "desc": "We reach you as quickly as possible under strict standards of quality preservation."
+        }
+      }
+    },
+    "testimonials": {
+      "title": "What They Say About Jnan",
+      "subtitle": "We are proud to share reviews from clients who trusted our quality and shared their unique experiences.",
+      "items": {
+        "faisal": {
+          "name": "Faisal Al-Otaibi",
+          "loc": "Riyadh",
+          "comment": "The Saudi coffee is second to none, cardamom and saffron are perfectly balanced, and the packaging honors your guests."
+        },
+        "sarah": {
+          "name": "Sarah Al-Ghamdi",
+          "loc": "Jeddah",
+          "comment": "The Ajwa dates box was an amazing gift for my mother. Superb quality and dates are large and very well stuffed."
+        },
+        "abdul": {
+          "name": "Abdulrahman Al-Subaie",
+          "loc": "Dammam",
+          "comment": "Roasted nuts are fresh and crunchy, and the delivery speed really amazed me. Elegant shopping experience!"
+        },
+        "nouf": {
+          "name": "Nouf Al-Harbi",
+          "loc": "Medina",
+          "comment": "Serving tools and copperware are of excellent quality and design. Great customer service!"
+        }
+      }
+    },
+    "brands": {
+      "title": "Partners of Success & Authenticity",
+      "subtitle": "We take pride in cooperating with the finest local coffee estates and national date factories to ensure premium quality."
     }
   },
   "category": {
