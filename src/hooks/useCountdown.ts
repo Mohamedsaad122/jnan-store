@@ -8,6 +8,18 @@ export interface TimeLeft {
   isExpired: boolean;
 }
 
+/**
+ * Custom hook to calculate remaining time until a target date.
+ * Updates the remaining duration every second and stops ticking when expired.
+ *
+ * @param targetDate - The target end date as a ISO string, Date object, or timestamp number.
+ * @returns An object containing days, hours, minutes, seconds, and an isExpired boolean.
+ *
+ * @example
+ * ```typescript
+ * const { days, hours, minutes, seconds, isExpired } = useCountdown('2026-12-31T23:59:59Z');
+ * ```
+ */
 export const useCountdown = (targetDate: string | Date | number): TimeLeft => {
   const calculateTimeLeft = useCallback((): TimeLeft => {
     const difference = +new Date(targetDate) - +new Date();

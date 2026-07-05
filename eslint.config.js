@@ -11,7 +11,8 @@ export default [
       'vite.config.ts',
       'eslint.config.js',
       'tailwind.config.js',
-      'postcss.config.js'
+      'postcss.config.js',
+      'commitlint.config.cjs'
     ],
   },
   js.configs.recommended,

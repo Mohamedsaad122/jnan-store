@@ -1,46 +1,59 @@
-import { useCartStore, CartItemState } from '@/store/cart.store';
+import { useCartStore } from '@/store/cart.store';
 
+/**
+ * Custom hook wrapping useCartStore to expose cart items, totals, and management actions.
+ * Exposes standard cart mutating actions along with helpers for tax, shipping, and coupons.
+ *
+ * @returns An object containing the cart state properties, handlers, and backward-compatible aliases.
+ */
 export const useCart = () => {
-  const { items, isOpen, totalAmount, totalQuantity, setItems, setOpen, reset } = useCartStore();
+  const {
+    items,
+    isOpen,
+    appliedCoupon,
+    totalAmount,
+    totalQuantity,
+    setOpen,
+    addItem,
+    removeItem,
+    updateQuantity,
+    clearCart,
+    applyCoupon,
+    removeCoupon,
+    getSubtotal,
+    getTotal,
+    getItemsCount,
+    getDiscountAmount,
+    getShippingFee,
+    getTaxAmount,
+    reset,
+  } = useCartStore();
 
-  const addToCart = (newItem: Omit<CartItemState, 'quantity'> & { quantity?: number }) => {
-    const quantityToAdd = newItem.quantity || 1;
-    const existingIndex = items.findIndex((item) => item.productId === newItem.productId);
-
-    if (existingIndex > -1) {
-      const updated = [...items];
-      updated[existingIndex] = {
-        ...updated[existingIndex],
-        quantity: updated[existingIndex].quantity + quantityToAdd,
-      };
-      setItems(updated);
-    } else {
-      setItems([...items, { ...newItem, quantity: quantityToAdd }]);
-    }
-  };
-
-  const removeFromCart = (productId: string) => {
-    setItems(items.filter((item) => item.productId !== productId));
-  };
-
-  const updateQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
-      return;
-    }
-    setItems(items.map((item) => (item.productId === productId ? { ...item, quantity } : item)));
-  };
+  // Backward compatibility alias for existing product card and details bindings
+  const addToCart = addItem;
+  const removeFromCart = removeItem;
 
   return {
     items,
     isOpen,
+    appliedCoupon,
     totalAmount,
     totalQuantity,
-    setItems,
     setOpen,
+    addItem,
     addToCart,
+    removeItem,
     removeFromCart,
     updateQuantity,
+    clearCart,
+    applyCoupon,
+    removeCoupon,
+    getSubtotal,
+    getTotal,
+    getItemsCount,
+    getDiscountAmount,
+    getShippingFee,
+    getTaxAmount,
     reset,
   };
 };

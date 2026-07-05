@@ -7,8 +7,9 @@ import { ROUTES } from '@/constants/routes';
 import { Command } from '@/components/ui/Command';
 
 export const MobileNavigation: React.FC = () => {
-  const { totalQuantity, setOpen: setCartOpen } = useCartStore();
-  const { isAuthenticated } = useAuthStore();
+  const totalQuantity = useCartStore((state) => state.totalQuantity);
+  const setCartOpen = useCartStore((state) => state.setOpen);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [isSearchOpen, setSearchOpen] = useState(false);
 
   return (

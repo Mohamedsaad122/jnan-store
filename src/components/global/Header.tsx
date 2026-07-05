@@ -22,8 +22,9 @@ import { MobileDrawer } from '@/components/global/MobileDrawer';
 import { AnnouncementBar } from '@/components/global/AnnouncementBar';
 
 export const Header: React.FC = () => {
-  const { totalQuantity, setOpen: setCartOpen } = useCartStore();
-  const { itemIds: wishlistIds } = useWishlistStore();
+  const totalQuantity = useCartStore((state) => state.totalQuantity);
+  const setCartOpen = useCartStore((state) => state.setOpen);
+  const wishlistIds = useWishlistStore((state) => state.itemIds);
   const { user, isAuthenticated } = useAuth();
   const [isMenuOpen, setMenuOpen] = useState(false);
 
@@ -155,7 +156,9 @@ export const Header: React.FC = () => {
                     <button className="flex items-center focus:outline-none" aria-label="حسابي">
                       <Avatar
                         src={user.avatarUrl}
-                        fallbackText={user.name}
+                        fallbackText={
+                          user.firstName || ('name' in user ? String(user['name']) : '')
+                        }
                         className="h-8 w-8 cursor-pointer hover:border-gold/50"
                       />
                     </button>
@@ -164,7 +167,11 @@ export const Header: React.FC = () => {
                     <div className="px-3 py-2 border-b text-right">
                       <p className="text-xs text-muted-foreground font-tajawal">مرحباً بك</p>
                       <p className="text-sm font-semibold truncate text-primary font-tajawal">
-                        {user.name}
+                        {user.firstName
+                          ? `${user.firstName} ${user.lastName}`
+                          : 'name' in user
+                            ? String(user['name'])
+                            : ''}
                       </p>
                     </div>
                     <DropdownMenuItem>

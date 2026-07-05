@@ -6,6 +6,7 @@ export const ROUTES = {
   WISHLIST: '/wishlist',
   CART: '/cart',
   CHECKOUT: '/checkout',
+  ORDER_SUCCESS: '/checkout/success',
   AUTH: {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',

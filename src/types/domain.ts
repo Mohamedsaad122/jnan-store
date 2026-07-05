@@ -33,6 +33,36 @@ export interface Category {
   isActive: boolean;
 }
 
+export interface Brand {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  slug: string;
+  logoUrl?: string;
+  descriptionAr?: string;
+  descriptionEn?: string;
+}
+
+export interface ProductImage {
+  id: string;
+  url: string;
+  altAr?: string;
+  altEn?: string;
+  isPrimary: boolean;
+}
+
+export interface ProductVariant {
+  id: string;
+  productId: string;
+  nameAr: string; // e.g. "علبة ٢٥٠ غرام"
+  nameEn: string; // e.g. "250g Container"
+  price: number;
+  salePrice?: number;
+  stock: number;
+  sku: string;
+  attributes: Record<string, string>; // e.g., { weight: "250g" }
+}
+
 export interface Product {
   id: string;
   nameAr: string;
@@ -42,8 +72,11 @@ export interface Product {
   descriptionEn: string;
   price: number;
   salePrice?: number;
-  images: string[];
+  images: ProductImage[];
   categoryId: string;
+  category?: Category;
+  brandId?: string;
+  brand?: Brand;
   sku: string;
   stock: number;
   weightQuantity?: string; // e.g., "250g", "1kg"
@@ -51,6 +84,9 @@ export interface Product {
   reviewsCount: number;
   isActive: boolean;
   isFeatured: boolean;
+  variants: ProductVariant[];
+  reviews?: Review[];
+  specifications?: Record<string, string>; // e.g., { origin: "Yemen", roast: "Medium" }
   createdAt: string;
   updatedAt: string;
 }
@@ -105,10 +141,14 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  orderNumber: string;
   userId: string;
   items: OrderItem[];
   shippingAddress: Address;
   billingAddress?: Address;
+  shippingMethod?: ShippingMethod;
+  paymentMethod?: PaymentMethodType;
+  subtotal: number;
   couponCode?: string;
   discountAmount: number;
   shippingFee: number;
@@ -140,7 +180,7 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-export interface Pagination {
+export interface PaginationMeta {
   page: number;
   limit: number;
   totalItems: number;
@@ -149,9 +189,24 @@ export interface Pagination {
   hasPrevPage: boolean;
 }
 
+export type Pagination = PaginationMeta;
+
 export interface ApiPaginatedResponse<T> {
   success: boolean;
   data: T[];
-  pagination: Pagination;
+  pagination: PaginationMeta;
   message?: string;
 }
+
+export interface ShippingMethod {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  cost: number;
+  estimatedDeliveryAr: string;
+  estimatedDeliveryEn: string;
+}
+
+export type PaymentMethodType = 'cod' | 'card' | 'applepay' | 'mada' | 'stcpay';
