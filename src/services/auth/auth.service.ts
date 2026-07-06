@@ -8,18 +8,24 @@ import {
   VerifyOtpRequest,
   AuthTokens,
 } from '@/features/auth/types';
+import { featureFlags } from '@/config/featureFlags';
+import { request } from '@/lib/api/request';
 import { MOCK_USERS_DB, MOCK_OTP_REGISTRY, MOCK_PENDING_REGISTRATIONS } from './auth.mock';
 import authMapper from './auth.mapper';
 
 /**
  * Service to manage authentication flows, token refreshes, registration requests,
- * and profile retrieval.
+ * and profile retrieval. Supports switching between Mock and Real APIs.
  */
 export const authService = {
   /**
    * Login request validation
    */
   async login(credentials: LoginRequest): Promise<AuthResponse> {
+    if (!featureFlags.enableMockApi) {
+      return request.post<AuthResponse>('/auth/login', credentials);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 600));
 
     const matched = MOCK_USERS_DB.find(
@@ -42,6 +48,10 @@ export const authService = {
    * Register a pending user account and sends verification OTP code
    */
   async register(data: RegisterRequest): Promise<{ email: string; message: string }> {
+    if (!featureFlags.enableMockApi) {
+      return request.post<{ email: string; message: string }>('/auth/register', data);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 600));
 
     const emailExists = MOCK_USERS_DB.some(
@@ -80,6 +90,10 @@ export const authService = {
    * Verify registration OTP and creates the account
    */
   async verifyOtp(data: VerifyOtpRequest): Promise<AuthResponse> {
+    if (!featureFlags.enableMockApi) {
+      return request.post<AuthResponse>('/auth/verify-otp', data);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const email = data.email.toLowerCase();
@@ -137,6 +151,10 @@ export const authService = {
    * Triggers forgot password OTP code
    */
   async forgotPassword(data: ForgotPasswordRequest): Promise<{ email: string; message: string }> {
+    if (!featureFlags.enableMockApi) {
+      return request.post<{ email: string; message: string }>('/auth/forgot-password', data);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const email = data.email.toLowerCase();
@@ -162,6 +180,10 @@ export const authService = {
    * Resets password using OTP code
    */
   async resetPassword(data: ResetPasswordRequest): Promise<void> {
+    if (!featureFlags.enableMockApi) {
+      return request.post<void>('/auth/reset-password', data);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 600));
 
     const email = data.email.toLowerCase();
@@ -185,6 +207,10 @@ export const authService = {
    * Mock refresh token session
    */
   async refreshToken(token: string): Promise<AuthTokens> {
+    if (!featureFlags.enableMockApi) {
+      return request.post<AuthTokens>('/auth/refresh-token', { token });
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 200));
     if (!token) throw new Error('Refresh token is required');
     return {
@@ -197,6 +223,10 @@ export const authService = {
    * Fetch current authenticated user profile
    */
   async getCurrentUser(token: string): Promise<User> {
+    if (!featureFlags.enableMockApi) {
+      return request.get<User>('/auth/me');
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 300));
     if (!token) throw new Error('Unauthenticated');
     // For mock, return the standard user or decode token
@@ -207,7 +237,46 @@ export const authService = {
    * Mock logout trigger
    */
   async logout(): Promise<void> {
+    if (!featureFlags.enableMockApi) {
+      return request.post<void>('/auth/logout');
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 200));
+  },
+
+  /**
+   * Updates current user profile details
+   */
+  async updateProfile(profileData: {
+    firstName: string;
+    lastName: string;
+    phone?: string;
+    avatarUrl?: string;
+  }): Promise<User> {
+    if (!featureFlags.enableMockApi) {
+      return request.put<User>('/auth/profile', profileData);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    const matched = MOCK_USERS_DB[0];
+    matched.user = {
+      ...matched.user,
+      ...profileData,
+    };
+    return matched.user;
+  },
+
+  /**
+   * Changes authenticated user account password
+   */
+  async changePassword(passwordData: {
+    currentPassword?: string;
+    newPassword?: string;
+  }): Promise<void> {
+    if (!featureFlags.enableMockApi) {
+      await request.post<void>('/auth/change-password', passwordData);
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
   },
 };
 

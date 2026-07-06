@@ -16,17 +16,17 @@ export const DASHBOARD_NAV_ITEMS: DashboardMenuItem[] = [
     roles: ['user', 'vendor', 'admin'],
   },
   {
-    id: 'orders',
-    labelKey: 'dashboard.nav.orders',
-    path: '/dashboard/orders',
-    iconName: 'ShoppingBag',
-    roles: ['user'],
-  },
-  {
     id: 'addresses',
     labelKey: 'dashboard.nav.addresses',
     path: '/dashboard/addresses',
     iconName: 'MapPin',
+    roles: ['user'],
+  },
+  {
+    id: 'orders',
+    labelKey: 'dashboard.nav.orders',
+    path: '/dashboard/orders',
+    iconName: 'ShoppingBag',
     roles: ['user'],
   },
   {
@@ -55,13 +55,6 @@ export const DASHBOARD_NAV_ITEMS: DashboardMenuItem[] = [
     labelKey: 'dashboard.nav.settings',
     path: '/dashboard/settings',
     iconName: 'Settings',
-    roles: ['user', 'vendor', 'admin'],
-  },
-  {
-    id: 'support',
-    labelKey: 'dashboard.nav.support',
-    path: '/dashboard/support',
-    iconName: 'LifeBuoy',
     roles: ['user', 'vendor', 'admin'],
   },
 ];

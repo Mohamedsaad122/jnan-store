@@ -1,32 +1,17 @@
 import { useAuthStore } from '@/store/auth.store';
-import { authService } from '@/services/auth/auth.service';
+import { useLogout } from '@/hooks/useAuthMutations';
 
 export const useAuth = () => {
-  const {
-    user,
-    token,
-    accessToken,
-    refreshToken,
-    isAuthenticated,
-    isLoading,
-    error,
-    logout: storeLogout,
-    setLoading,
-    setError,
-  } = useAuthStore();
+  const { user, token, accessToken, refreshToken, isAuthenticated, isLoading, error } =
+    useAuthStore();
+
+  const logoutMutation = useLogout();
 
   const handleLogout = async () => {
-    setLoading(true);
     try {
-      await authService.logout();
-      // Purge stored local variables
-      localStorage.removeItem('auth_token');
-      storeLogout();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setError(msg || 'فشل تسجيل الخروج');
-    } finally {
-      setLoading(false);
+      await logoutMutation.mutateAsync();
+    } catch {
+      // Ignored: toast alerts are already handled within the mutation itself
     }
   };
 
@@ -36,7 +21,7 @@ export const useAuth = () => {
     accessToken,
     refreshToken,
     isAuthenticated,
-    isLoading,
+    isLoading: isLoading || logoutMutation.isPending,
     error,
     logout: handleLogout,
   };

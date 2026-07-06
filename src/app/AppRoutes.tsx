@@ -31,13 +31,13 @@ const NotFound = lazy(() => import('@/pages/NotFound'));
 const DashboardLayout = lazy(() => import('@/features/dashboard/layouts/DashboardLayout'));
 const DashboardOverview = lazy(() => import('@/features/dashboard/pages/OverviewPage'));
 const DashboardProfile = lazy(() => import('@/features/dashboard/pages/ProfilePage'));
-const DashboardOrders = lazy(() => import('@/features/dashboard/pages/OrdersPage'));
 const DashboardAddresses = lazy(() => import('@/features/dashboard/pages/AddressesPage'));
-const DashboardSettings = lazy(() => import('@/features/dashboard/pages/SettingsPage'));
-const DashboardSecurity = lazy(() => import('@/features/dashboard/pages/SecurityPage'));
+const DashboardOrders = lazy(() => import('@/features/dashboard/pages/OrdersPage'));
+const DashboardOrderDetails = lazy(() => import('@/features/dashboard/pages/OrderDetailsPage'));
 const DashboardWishlist = lazy(() => import('@/features/dashboard/pages/WishlistPage'));
 const DashboardNotifications = lazy(() => import('@/features/dashboard/pages/NotificationsPage'));
-const DashboardSupport = lazy(() => import('@/features/dashboard/pages/SupportPage'));
+const DashboardSecurity = lazy(() => import('@/features/dashboard/pages/SecurityPage'));
+const DashboardSettings = lazy(() => import('@/features/dashboard/pages/SettingsPage'));
 
 const AppRoutes: React.FC = () => {
   return (
@@ -86,13 +86,13 @@ const AppRoutes: React.FC = () => {
         >
           <Route index element={<DashboardOverview />} />
           <Route path="profile" element={<DashboardProfile />} />
-          <Route path="orders" element={<DashboardOrders />} />
           <Route path="addresses" element={<DashboardAddresses />} />
+          <Route path="orders" element={<DashboardOrders />} />
+          <Route path="orders/:id" element={<DashboardOrderDetails />} />
           <Route path="wishlist" element={<DashboardWishlist />} />
           <Route path="notifications" element={<DashboardNotifications />} />
           <Route path="security" element={<DashboardSecurity />} />
           <Route path="settings" element={<DashboardSettings />} />
-          <Route path="support" element={<DashboardSupport />} />
         </Route>
 
         {/* Custom Isolated Layout Routes (e.g. Minimalist Checkout layout) */}

@@ -1,6 +1,26 @@
-import { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { apiClient } from './axios';
 import { errorMapper } from './errorMapper';
+import { env } from '@/config/env';
+
+interface QueueItem {
+  resolve: (value: string | null) => void;
+  reject: (error: unknown) => void;
+}
+
+let isRefreshing = false;
+let failedQueue: QueueItem[] = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
 
 // Request Interceptor: injects active JWT auth token to requests
 apiClient.interceptors.request.use(
@@ -16,48 +36,82 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response Interceptor: standardizes errors and provides refresh hooks
+// Response Interceptor: standardizes errors and handles automatic token refresh
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    // 1. Normalize the caught AxiosError to our central Error subclasses
-    const mappedError = errorMapper.mapError(error);
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // 2. Refresh token architecture extension point placeholder
-    if (mappedError.status === 401) {
-      console.warn('Unauthorized [401]: Token invalid or session expired.');
+    // Avoid infinite retry loop on token refresh request itself
+    if (originalRequest && originalRequest.url?.includes('/auth/refresh-token')) {
+      return Promise.reject(errorMapper.mapError(error));
+    }
 
-      // Cleanup local auth cache (backward-compatible purge)
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_refresh_token');
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      const refreshToken = localStorage.getItem('auth_refresh_token');
 
-      /**
-       * FUTURE RETRY WORKFLOW EXTENSION POINT:
-       * When a real backend is integrated, we can trigger the token refresh endpoint here:
-       *
-       * try {
-       *   const newTokens = await authService.refreshToken();
-       *   localStorage.setItem('auth_token', newTokens.accessToken);
-       *
-       *   // Re-run original request with new token
-       *   if (error.config) {
-       *     error.config.headers.Authorization = `Bearer ${newTokens.accessToken}`;
-       *     return apiClient(error.config);
-       *   }
-       * } catch (refreshError) {
-       *   // Handle logout / redirect to login
-       * }
-       */
+      if (!refreshToken) {
+        // No refresh token, purge and reject
+        localStorage.removeItem('auth_token');
+        return Promise.reject(errorMapper.mapError(error));
+      }
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
+            return apiClient(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      return new Promise((resolve, reject) => {
+        // Direct call to axios to avoid interceptor loops
+        axios
+          .post<{ accessToken: string; refreshToken: string }>(
+            `${env.VITE_API_BASE_URL}/auth/refresh-token`,
+            { token: refreshToken }
+          )
+          .then(({ data }) => {
+            localStorage.setItem('auth_token', data.accessToken);
+            localStorage.setItem('auth_refresh_token', data.refreshToken);
+
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+            }
+
+            processQueue(null, data.accessToken);
+            resolve(apiClient(originalRequest));
+          })
+          .catch((err) => {
+            processQueue(err, null);
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_refresh_token');
+            reject(errorMapper.mapError(err));
+          })
+          .finally(() => {
+            isRefreshing = false;
+          });
+      });
     }
 
     // Reject using the standardized normalized error class
-    return Promise.reject(mappedError);
+    return Promise.reject(errorMapper.mapError(error));
   }
 );
 
 export const setupInterceptors = () => {
   // Expose hook to initialize or verify file mounting
-  console.log('✅ API interceptors mounted successfully');
+  console.log('✅ API interceptors mounted successfully with automatic refresh active');
 };
 
 export default setupInterceptors;

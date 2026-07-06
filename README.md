@@ -21,7 +21,7 @@ To preserve and promote traditional Saudi hospitality and heritage through a pre
 
 * **Bi-directional Localization (i18n)**: Out-of-the-box Arabic (RTL, font: *Tajawal*) and English (LTR, font: *Inter*) layout directions.
 * **Feature-Based Clean Architecture**: Separation of concerns based on distinct functional boundaries (Auth, Shop, Cart, Checkout, Profile).
-* **Robust State Management**: Zustand for global synchronizations (Cart, Wishlist, Notifications) and TanStack Query (v5) for cache-first network states.
+* **Robust State Management**: Zustand for global client-side UI configurations (Cart items, languages, theme, modal toggles) and TanStack Query (v5) for cache-first async server states (products, categories, orders, wishlist, addresses, notifications).
 * **Reusable UI Components**: Clean UI primitives with flexible style overrides (Tailwind CSS + Shadcn design parameters).
 * **Comprehensive Test Suites**: Strict coverage patterns via Vitest + RTL (unit/integration) and Playwright (end-to-end user journeys).
 * **Strict Quality Gates**: GHA pipelines, Prettier formatting, ESLint rules (`--max-warnings 0`), Husky git hooks, and Conventional Commit specifications.
@@ -242,10 +242,12 @@ Language stores detect locale preferences and adjust standard page layouts (`dir
 
 Review our extended milestones in [ROADMAP.md](docs/ROADMAP.md).
 
-* **Phase 1-4**: Storefront components, checkout system, and auth integration (Completed).
-* **Phase 5**: Real-time payment gateway bindings (Apple Pay / Mada).
-* **Phase 6**: Vendor dashboard interfaces and order dispatch notification portals.
-* **Phase 7**: Performance optimization utilizing Next.js / SSR architectures.
+* **Version 1.0 (Completed)**: Core Foundation, Storefront UI components, Cart, Checkout flow, JWT Authentication, and Quality testing pipeline.
+* **Version 2.0 (Current)**: Customer Account Dashboard (Phases 5.1 - 5.4) - Overview Home, Profile Settings, Address Book, Orders tracking, notifications.
+* **Version 3.0**: Admin Management Console (Products CRUD, order lists, coupons, inventory, and role security).
+* **Version 4.0**: Full Backend REST Integration (connecting live APIs and removing local mocks).
+* **Version 5.0**: Payment Gateway Bindings (Mada, Apple Pay, STC Pay, Visa, Mastercard).
+* **Version 6.0**: Production Launch setup (Docker, CI/CD pipelines, SSL, CDN, SEO, and optimization).
 
 ---
 

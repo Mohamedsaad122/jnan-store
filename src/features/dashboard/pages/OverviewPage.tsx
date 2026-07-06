@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { TrendingUp, UserCheck, ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguageStore } from '@/store/language.store';
-import { useAddressStore } from '@/store/address.store';
-import { useWishlistStore } from '@/store/wishlist.store';
+import { useAddresses } from '@/hooks/useAddressesQuery';
+import { useWishlist } from '@/hooks/useWishlist';
 import dashboardOrdersService from '../services/orders.service';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -20,8 +20,8 @@ export const OverviewPage: React.FC = () => {
   const { user } = useAuth();
   const { language } = useLanguageStore();
   const isRtl = language === 'ar';
-  const { addresses } = useAddressStore();
-  const { itemIds } = useWishlistStore();
+  const { data: addresses = [] } = useAddresses();
+  const { itemIds } = useWishlist();
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(true);

@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Edit2, Trash2, CheckCircle2, MapPin } from 'lucide-react';
 import { Address } from '@/types/domain';
-import { useAddressStore } from '@/store/address.store';
+import {
+  useAddresses,
+  useAddAddress,
+  useEditAddress,
+  useDeleteAddress,
+} from '@/hooks/useAddressesQuery';
 import AddressFormModal from './AddressFormModal';
 import Button from '@/components/ui/Button';
 
@@ -19,7 +24,10 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const { addresses, addAddress, editAddress, deleteAddress } = useAddressStore();
+  const { data: addresses = [] } = useAddresses();
+  const addAddressMutation = useAddAddress();
+  const editAddressMutation = useEditAddress();
+  const deleteAddressMutation = useDeleteAddress();
 
   // State to manage Modal visibility and active edit targets
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,14 +46,14 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
 
   const handleDeleteClick = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    deleteAddress(id);
+    deleteAddressMutation.mutate(id);
   };
 
   const handleSaveAddress = (data: Omit<Address, 'id' | 'userId'>) => {
     if (editTarget) {
-      editAddress(editTarget.id, data);
+      editAddressMutation.mutate({ id: editTarget.id, updatedFields: data });
     } else {
-      addAddress(data);
+      addAddressMutation.mutate(data);
     }
   };
 

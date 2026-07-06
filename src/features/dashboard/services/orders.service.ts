@@ -1,4 +1,6 @@
 import { Order } from '@/types/domain';
+import { featureFlags } from '@/config/featureFlags';
+import { request } from '@/lib/api/request';
 
 const PRESET_ORDERS: Order[] = [
   {
@@ -86,13 +88,17 @@ const PRESET_ORDERS: Order[] = [
 
 /**
  * Service to manage retrieval and storage of dashboard orders.
+ * Supports switching between Mock and Real APIs.
  */
 export const dashboardOrdersService = {
   /**
-   * Fetches mock orders for a specific user ID, merging in-memory presets
-   * with any recent order saved in localStorage.
+   * Fetches mock orders for a specific user ID, or requests live API endpoints.
    */
   async getOrders(userId: string): Promise<Order[]> {
+    if (!featureFlags.enableMockApi) {
+      return request.get<Order[]>('/orders', { params: { userId } });
+    }
+
     // Simulate slight network roundtrip
     await new Promise((resolve) => setTimeout(resolve, 300));
 
@@ -109,6 +115,30 @@ export const dashboardOrdersService = {
       }
     }
     return list;
+  },
+
+  /**
+   * Fetches details of a specific order by its unique ID.
+   */
+  async getOrderById(orderId: string): Promise<Order | undefined> {
+    if (!featureFlags.enableMockApi) {
+      return request.get<Order>(`/orders/${orderId}`);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const allOrders = [...PRESET_ORDERS];
+    const lastOrderStr = localStorage.getItem('jnan_last_order');
+    if (lastOrderStr) {
+      try {
+        const lastOrder = JSON.parse(lastOrderStr) as Order;
+        if (lastOrder && !allOrders.some((o) => o.id === lastOrder.id)) {
+          allOrders.unshift(lastOrder);
+        }
+      } catch {
+        // Ignore JSON format errors
+      }
+    }
+    return allOrders.find((o) => o.id === orderId);
   },
 };
 

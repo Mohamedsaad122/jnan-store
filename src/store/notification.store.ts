@@ -1,32 +1,27 @@
 import { create } from 'zustand';
 
-export interface NotificationItem {
-  id: string;
-  type: 'success' | 'error' | 'info' | 'warning';
-  message: string;
-  duration?: number;
+interface NotificationUiState {
+  isDrawerOpen: boolean;
+  setDrawerOpen: (open: boolean) => void;
 }
 
-interface NotificationState {
-  notifications: NotificationItem[];
-  addNotification: (notification: Omit<NotificationItem, 'id'>) => void;
-  removeNotification: (id: string) => void;
-  clearAll: () => void;
-}
-
-export const useNotificationStore = create<NotificationState>((set) => ({
-  notifications: [],
-  addNotification: (notification) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    set((state) => ({
-      notifications: [...state.notifications, { ...notification, id }],
-    }));
-  },
-  removeNotification: (id) =>
-    set((state) => ({
-      notifications: state.notifications.filter((n) => n.id !== id),
-    })),
-  clearAll: () => set({ notifications: [] }),
+/**
+ * Zustand store managing client-only UI configurations for notifications.
+ * All notification server records reside inside React Query cache.
+ */
+export const useNotificationStore = create<NotificationUiState>()((set) => ({
+  isDrawerOpen: false,
+  setDrawerOpen: (open) => set({ isDrawerOpen: open }),
 }));
 
 export default useNotificationStore;
+export interface NotificationItem {
+  id: string;
+  type: 'order' | 'promotion' | 'account' | 'security' | 'system';
+  titleAr: string;
+  titleEn: string;
+  descAr: string;
+  descEn: string;
+  time: string;
+  read: boolean;
+}

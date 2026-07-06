@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Heart, Trash2, ShoppingCart, ArrowLeft, ArrowRight } from 'lucide-react';
-import { useWishlistStore } from '@/store/wishlist.store';
+import { useWishlist } from '@/hooks/useWishlist';
 import { useProductsByIds } from '@/hooks/useProducts';
 import ProductCard from '@/features/home/components/product-card/ProductCard';
 import ProductCardSkeleton from '@/features/home/components/product-card/ProductCardSkeleton';
@@ -18,7 +18,7 @@ export const Wishlist: React.FC = () => {
   const { language } = useLanguageStore();
   const isRtl = language === 'ar';
 
-  const { itemIds, reset: clearWishlist } = useWishlistStore();
+  const { itemIds, clearWishlist } = useWishlist();
   const { addToCart } = useCart();
 
   // 1. Fetch wishlisted items via modular hook

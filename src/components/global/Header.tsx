@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { Avatar } from '@/components/ui/Avatar';
 import { useCartStore } from '@/store/cart.store';
-import { useWishlistStore } from '@/store/wishlist.store';
+import { useWishlist } from '@/hooks/useWishlist';
 import { useAuth } from '@/hooks/useAuth';
 import { ROUTES } from '@/constants/routes';
 import { MobileDrawer } from '@/components/global/MobileDrawer';
@@ -24,7 +24,7 @@ import { AnnouncementBar } from '@/components/global/AnnouncementBar';
 export const Header: React.FC = () => {
   const totalQuantity = useCartStore((state) => state.totalQuantity);
   const setCartOpen = useCartStore((state) => state.setOpen);
-  const wishlistIds = useWishlistStore((state) => state.itemIds);
+  const { itemIds: wishlistIds } = useWishlist();
   const { user, isAuthenticated } = useAuth();
   const [isMenuOpen, setMenuOpen] = useState(false);
 

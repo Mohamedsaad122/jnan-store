@@ -60,8 +60,8 @@ For client-side data shared across multiple features, we use **Zustand**. It is 
 ### Zustand Stores in Jnan Store:
 * **`useCartStore`**: Manages cart items, coupon validation states, and handles totals, taxes, and shipping calculations.
 * **`useAuthStore`**: Manages authenticated user profiles, login/logout transitions, and handles `accessToken`/`refreshToken` state.
-* **`useWishlistStore`**: Manages the list of bookmarked product IDs.
-* **`useAddressStore`**: Manages shipping addresses.
+* **`useWishlistStore`**: Client-side UI drawer/modal states. Wishlist data listings are managed by React Query.
+* **`useAddressStore`**: Client-side UI modal open/close transitions. Shipping addresses list data is managed by React Query.
 * **`useLanguageStore`**: Manages the active language locale code (`ar` | `en`) and toggles document layouts (`rtl` / `ltr`).
 * **`useThemeStore`**: Manages visual theme modes (`light` | `dark`).
 
@@ -108,6 +108,6 @@ Component-level state (e.g. modal open toggles, password visibility states, or r
 Zustand stores that need to persist across page reloads (such as `useCartStore`, `useAuthStore`, and `useWishlistStore`) leverage Zustand's **persist middleware**:
 
 * **Storage Engines**:
-  - `useCartStore` and `useWishlistStore` use standard `localStorage` to persist items.
+  - `useCartStore` uses standard `localStorage` to persist items.
   - `useAuthStore` uses a secure storage wrapper to safeguard session tokens.
 * **Hydration**: Configured to hydrate synchronously during app boot to prevent layout shifts.

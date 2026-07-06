@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { ShieldCheck, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
-import { useAddressStore } from '@/store/address.store';
+import { useAddresses } from '@/hooks/useAddressesQuery';
+import { useCreateOrder } from '@/hooks/useCheckoutMutation';
 import AddressSelector from '@/features/checkout/components/AddressSelector';
 import ShippingMethodCard from '@/features/checkout/components/ShippingMethodCard';
 import PaymentMethodCard from '@/features/checkout/components/PaymentMethodCard';
@@ -22,8 +23,9 @@ export const Checkout: React.FC = () => {
   const { language } = useLanguageStore();
   const isRtl = language === 'ar';
 
-  const { items, getSubtotal, getDiscountAmount, clearCart, appliedCoupon } = useCart();
-  const { addresses } = useAddressStore();
+  const { items, getSubtotal, getDiscountAmount, appliedCoupon } = useCart();
+  const { data: addresses = [] } = useAddresses();
+  const createOrderMutation = useCreateOrder();
 
   // 1. Checkout Form States
   const [shippingAddress, setShippingAddress] = useState<Address | null>(null);
@@ -31,7 +33,7 @@ export const Checkout: React.FC = () => {
   const [sameAsShipping, setSameAsShipping] = useState(true);
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmitting = createOrderMutation.isPending;
 
   // Set default selected shipping/billing addresses on mount if addresses exist
   useEffect(() => {
@@ -85,7 +87,6 @@ export const Checkout: React.FC = () => {
       return;
     }
 
-    setIsSubmitting(true);
     try {
       // Map cart item state to order items
       const orderItems: OrderItem[] = items.map((item, idx) => ({
@@ -98,7 +99,7 @@ export const Checkout: React.FC = () => {
         imageUrl: item.imageUrl,
       }));
 
-      const newOrder = await ordersService.createOrder({
+      await createOrderMutation.mutateAsync({
         items: orderItems,
         shippingAddress: shippingAddress!,
         billingAddress: activeBilling,
@@ -112,21 +113,10 @@ export const Checkout: React.FC = () => {
         couponCode: appliedCoupon?.code,
       });
 
-      // Save order metadata to storage for the success page
-      localStorage.setItem('jnan_last_order', JSON.stringify(newOrder));
-
-      toast.success(t('checkout.order_placed_success', { defaultValue: 'تم تقديم طلبك بنجاح!' }));
-
-      // Clear the cart on successful completion
-      clearCart();
-
       // Navigate to order confirmation
       navigate(ROUTES.ORDER_SUCCESS || '/checkout/success');
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error(message || 'حدث خطأ أثناء معالجة طلبك، يرجى المحاولة لاحقاً');
-    } finally {
-      setIsSubmitting(false);
+    } catch {
+      // Handled in mutation toasts
     }
   };
 

@@ -36,7 +36,7 @@ To keep presentation and network layers decoupled, data undergoes explicit trans
 2. **Custom Hook**: Captures parameters and triggers a React Query mutation or query execution.
 3. **Domain Service**: Method gets called with arguments. It provides the endpoint path and handles logical parameters.
 4. **Mapper / Adapter**: If the backend requires a different format, the mapper transforms our camelCase UI models to the snake_case or specific format required by the API.
-5. **DTO**: Validated data payload structure representation.
+5. **DTO**: Validated data payload structure representation. No UI components directly consume or import DTO shapes.
 6. **Axios Client**: Sends the HTTP request. It attaches headers such as `Authorization: Bearer <token>` and `Accept-Language: ar`.
 7. **REST API / Backend**: Receives the request and performs operations.
 
@@ -67,29 +67,32 @@ To keep presentation and network layers decoupled, data undergoes explicit trans
 ```
 
 1. **REST API / Backend**: Responds with a JSON payload (e.g., containing user profile info).
-2. **Axios Client**: Receives the response. Response interceptors handle global error checking (e.g., HTTP 401 triggers logout or refresh).
+2. **Axios Client**: Receives the response. Response interceptors handle global error checking (e.g., HTTP 401 triggers token refresh and queue processing).
 3. **API DTO**: Raw response is validated against TypeScript DTOs.
 4. **Mapper / Adapter**: Maps API fields (e.g., `user_email`, `first_name`) to local domain fields (`email`, `firstName`).
 5. **Domain Model**: Outputs a clean, strictly typed Domain object.
-6. **Custom Hook / Store**: TanStack Query updates its cache, notify components, or Zustand dispatches actions.
+6. **Custom Hook / Store**: TanStack Query updates its cache, notifies components, or Zustand dispatches actions.
 7. **UI Component**: Displays the formatted data.
 
 ---
 
 ## 2. Axios Client & Interceptors
 
-The base network configuration resides in `src/lib/api/apiClient.ts` (using the environment variable configuration `env.VITE_API_URL`).
+The base network configuration resides in `src/lib/api/axios.ts` (using the environment variable configuration `env.VITE_API_BASE_URL` and a default timeout threshold of 10000ms).
 
 ### Request Interceptor
-- Automatically injects the authentication token retrieved from `useAuthStore` into the request headers:
+- Automatically injects the active authentication token from `localStorage`:
   ```typescript
   config.headers.Authorization = `Bearer ${token}`;
   ```
-- Injects the active language locale code (`ar` or `en`) into the `Accept-Language` header to support server-side translations.
 
-### Response Interceptor
-- Processes successful responses and handles errors globally.
-- Redirects users or resets tokens automatically if the server returns a `401 Unauthorized` status code.
+### Response Interceptor & Automatic Token Refresh
+To handle token expiry (HTTP 401 Unauthorized), the response interceptor implements a queue-based token refresh mechanism:
+1. **Detection**: Catches HTTP `401 Unauthorized` responses.
+2. **Token Refresh Request**: Initiates a POST request to `/auth/refresh-token` passing the stored `auth_refresh_token`.
+3. **Queue Mechanism**: While the token refresh is in flight, subsequent incoming requests are queued.
+4. **Retry**: Upon successful token renewal, the new token is saved in `localStorage`, and the queued pending requests are automatically retried with the updated authorization header.
+5. **Purge**: If the refresh request itself fails, the local session variables are wiped and the user is redirected to the login flow.
 
 ---
 
@@ -106,9 +109,31 @@ All network request errors are intercepted and mapped to structured TypeScript e
 
 ---
 
-## 4. API Mocking for Testing (Mock Service Worker)
+## 4. Query Client & Retry Policies
 
-During Vitest test runs, we intercept network requests using **MSW (Mock Service Worker)**:
-- Outgoing requests to `https://api.jnan-store.com/v1/*` are intercepted by MSW handlers (`src/test/mocks/handlers.ts`) in the test runner.
-- MSW returns standard HTTP responses matching our API's production payloads.
-- This allows testing network scenarios, error handling, and authorization flows without running a live backend server.
+We customize TanStack Query (`src/lib/queryClient.ts`) to prevent wasteful retries on known client-side errors:
+* **Max Retries**: Set to `2` for server errors or network faults.
+* **Retry Filter**: Requests encountering client-side validation errors (HTTP 4xx series) are never retried.
+
+---
+
+## 5. Request Cancellation
+
+To avoid race conditions and save bandwidth, the request engine supports Axios `AbortController` signals. You can cancel requests by passing `signal` within the Axios request configurations:
+```typescript
+const controller = new AbortController();
+const products = await productsService.getProducts({
+  signal: controller.signal
+});
+
+// To cancel the request
+controller.abort();
+```
+
+---
+
+## 6. Hybrid Service API Feature Toggles
+
+To enable seamless testing and development, each service is built to dynamically switch between **Mock Dataset Mode** and **Live REST API Mode** utilizing environment settings alone.
+* Configuration flag `VITE_ENABLE_MOCK_API` (exposed through `featureFlags.enableMockApi`) controls the routing direction.
+* **Zustand Optimistic States**: Stores (such as `useAddressStore` and `useNotificationStore`) update local states synchronously to keep the UI instant, then execute optional background backend API syncs only when live API mode is activated.

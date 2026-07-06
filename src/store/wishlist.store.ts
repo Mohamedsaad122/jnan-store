@@ -1,23 +1,12 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 interface WishlistState {
-  itemIds: string[];
-  setItemIds: (itemIds: string[]) => void;
+  // Client-only UI states placeholder (Server state migrated to React Query)
   reset: () => void;
 }
 
-export const useWishlistStore = create<WishlistState>()(
-  persist(
-    (set) => ({
-      itemIds: [],
-      setItemIds: (itemIds) => set({ itemIds }),
-      reset: () => set({ itemIds: [] }),
-    }),
-    {
-      name: 'jnan-wishlist-storage',
-    }
-  )
-);
+export const useWishlistStore = create<WishlistState>()(() => ({
+  reset: () => {},
+}));
 
 export default useWishlistStore;

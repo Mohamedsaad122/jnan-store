@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@/test/render';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
-import AddressSelector from './AddressSelector';
+import { AddressSelector } from './AddressSelector';
 
 const mockAddresses = [
   {
@@ -28,18 +28,17 @@ const mockDeleteAddress = vi.fn();
 const mockAddAddress = vi.fn();
 const mockEditAddress = vi.fn();
 
-vi.mock('@/store/address.store', () => ({
-  useAddressStore: () => ({
-    addresses: mockAddresses,
-    addAddress: mockAddAddress,
-    editAddress: mockEditAddress,
-    deleteAddress: mockDeleteAddress,
-  }),
+vi.mock('@/hooks/useAddressesQuery', () => ({
+  useAddresses: () => ({ data: mockAddresses, isLoading: false }),
+  useAddAddress: () => ({ mutate: mockAddAddress, isPending: false }),
+  useEditAddress: () => ({ mutate: mockEditAddress, isPending: false }),
+  useDeleteAddress: () => ({ mutate: mockDeleteAddress, isPending: false }),
 }));
 
 // Mock AddressFormModal to avoid rendering complex nested forms in unit test
 vi.mock('./AddressFormModal', () => ({
   default: () => <div data-testid="mock-address-form-modal">Mock Address Form Modal</div>,
+  AddressFormModal: () => <div data-testid="mock-address-form-modal">Mock Address Form Modal</div>,
 }));
 
 describe('AddressSelector Component', () => {

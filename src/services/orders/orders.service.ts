@@ -1,4 +1,6 @@
 import { Order, Address, ShippingMethod, PaymentMethodType } from '@/types/domain';
+import { featureFlags } from '@/config/featureFlags';
+import { request } from '@/lib/api/request';
 
 export interface CreateOrderParams {
   items: Order['items'];
@@ -16,12 +18,17 @@ export interface CreateOrderParams {
 
 /**
  * Service to manage checkout order submissions, data validation, and calculations.
+ * Supports switching between Mock and Real APIs.
  */
 export const ordersService = {
   /**
-   * Mock creation of a customer order, simulating network latency
+   * Creates a customer order, requesting live backend REST APIs or generating mock orders.
    */
   async createOrder(orderData: CreateOrderParams): Promise<Order> {
+    if (!featureFlags.enableMockApi) {
+      return request.post<Order>('/orders', orderData);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 800)); // Simulating gateway roundtrip
 
     const orderNumber = `JN-${Math.floor(100000 + Math.random() * 900000)}`;

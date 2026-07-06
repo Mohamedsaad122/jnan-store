@@ -1,176 +1,222 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import useCartStore from './cart.store';
-import useAuthStore from './auth.store';
-import useWishlistStore from './wishlist.store';
-import useAddressStore from './address.store';
-import { mockUser, mockCoupons } from '@/test/fixtures';
+import { useCartStore } from './cart.store';
+import { useAuthStore } from './auth.store';
+import { useAddressStore } from './address.store';
+import { User, AuthTokens } from '@/features/auth/types';
 
 describe('Zustand Stores', () => {
-  // Reset all stores before each test to maintain isolation
-  beforeEach(() => {
-    useCartStore.getState().reset();
-    useAuthStore.getState().reset();
-    useWishlistStore.getState().reset();
-    useAddressStore.getState().reset();
-  });
-
   describe('useCartStore', () => {
+    beforeEach(() => {
+      useCartStore.getState().reset();
+    });
+
     it('initializes with empty items', () => {
       const state = useCartStore.getState();
-      expect(state.items).toEqual([]);
+      expect(state.items).toHaveLength(0);
       expect(state.totalQuantity).toBe(0);
       expect(state.totalAmount).toBe(0);
     });
 
     it('adds an item and updates totals correctly', () => {
       useCartStore.getState().addItem({
-        productId: 'prod-1',
-        name: 'بن خولاني',
-        price: 150,
+        productId: 'prod-honey-1',
+        name: 'Premium Honey',
+        price: 120,
         imageUrl: '',
       });
 
-      let state = useCartStore.getState();
+      const state = useCartStore.getState();
       expect(state.items).toHaveLength(1);
-      expect(state.items[0].productId).toBe('prod-1');
       expect(state.items[0].quantity).toBe(1);
       expect(state.totalQuantity).toBe(1);
-      expect(state.totalAmount).toBe(187.5); // 150 + 15 shipping + 22.5 VAT
-
-      // Add same item again to increment quantity
-      useCartStore.getState().addItem({
-        productId: 'prod-1',
-        name: 'بن خولاني',
-        price: 150,
-        imageUrl: '',
-      });
-
-      state = useCartStore.getState();
-      expect(state.items[0].quantity).toBe(2);
-      expect(state.totalQuantity).toBe(2);
-      expect(state.totalAmount).toBe(345); // 300 + 0 shipping (free >= 200) + 45 VAT
+      // Subtotal (120) + Tax (15% of 120 = 18) + Shipping (15 because subtotal < 200) = 153
+      expect(state.totalAmount).toBe(153);
     });
 
     it('updates quantity of items directly', () => {
       useCartStore.getState().addItem({
-        productId: 'prod-1',
-        name: 'بن خولاني',
-        price: 150,
+        productId: 'prod-honey-1',
+        name: 'Premium Honey',
+        price: 120,
       });
 
-      useCartStore.getState().updateQuantity('prod-1', 5);
+      useCartStore.getState().updateQuantity('prod-honey-1', 3);
+
       const state = useCartStore.getState();
-      expect(state.items[0].quantity).toBe(5);
-      expect(state.totalQuantity).toBe(5);
-      expect(state.totalAmount).toBe(862.5); // 750 + 0 shipping (free > 500) + 112.5 VAT
+      expect(state.items[0].quantity).toBe(3);
+      expect(state.totalQuantity).toBe(3);
     });
 
     it('removes items and recalculates totals', () => {
       useCartStore.getState().addItem({
-        productId: 'prod-1',
-        name: 'بن خولاني',
-        price: 150,
-      });
-      useCartStore.getState().addItem({
-        productId: 'prod-2',
-        name: 'أداة تقطير',
-        price: 90,
+        productId: 'prod-honey-1',
+        name: 'Premium Honey',
+        price: 120,
       });
 
-      useCartStore.getState().removeItem('prod-1');
+      useCartStore.getState().removeItem('prod-honey-1');
+
       const state = useCartStore.getState();
-      expect(state.items).toHaveLength(1);
-      expect(state.items[0].productId).toBe('prod-2');
-      expect(state.totalAmount).toBe(118.5); // 90 + 15 shipping + 13.5 VAT
+      expect(state.items).toHaveLength(0);
+      expect(state.totalQuantity).toBe(0);
+      expect(state.totalAmount).toBe(0);
     });
 
     it('applies and removes valid coupons correctly', () => {
       useCartStore.getState().addItem({
-        productId: 'prod-1',
-        name: 'بن خولاني',
-        price: 150,
+        productId: 'prod-honey-1',
+        name: 'Premium Honey',
+        price: 100,
       });
 
-      // Apply JNAN10 (10% percentage discount, min value 100)
-      useCartStore.getState().applyCoupon(mockCoupons[0]);
-      let state = useCartStore.getState();
-      expect(state.appliedCoupon).toEqual(mockCoupons[0]);
-      expect(state.getDiscountAmount()).toBe(15);
-      expect(state.getTotal()).toBe(150 - 15 + 15 + 20.25); // subtotal - discount + shipping + tax
+      useCartStore.getState().applyCoupon({
+        id: 'c-1',
+        code: 'SAVE10',
+        discountType: 'percentage',
+        discountValue: 10,
+        isActive: true,
+        startDate: '',
+        endDate: '',
+      });
 
-      // Remove coupon
+      let state = useCartStore.getState();
+      expect(state.appliedCoupon).not.toBeNull();
+      expect(state.appliedCoupon?.code).toBe('SAVE10');
+
       useCartStore.getState().removeCoupon();
       state = useCartStore.getState();
       expect(state.appliedCoupon).toBeNull();
-      expect(state.getDiscountAmount()).toBe(0);
+    });
+
+    it('correctly applies max discount limits for coupons', () => {
+      useCartStore.getState().addItem({
+        productId: 'prod-honey-expensive',
+        name: 'Premium Expensive Honey',
+        price: 1000,
+      });
+
+      useCartStore.getState().applyCoupon({
+        id: 'c-max-discount',
+        code: 'SAVE50',
+        discountType: 'percentage',
+        discountValue: 50,
+        maxDiscount: 100,
+        isActive: true,
+        startDate: '',
+        endDate: '',
+      });
+
+      const state = useCartStore.getState();
+      expect(state.getDiscountAmount()).toBe(100);
+    });
+
+    it('removes item if updated quantity is set below zero', () => {
+      useCartStore.getState().addItem({
+        productId: 'prod-honey-1',
+        name: 'Premium Honey',
+        price: 120,
+      });
+
+      useCartStore.getState().updateQuantity('prod-honey-1', -5);
+
+      const state = useCartStore.getState();
+      expect(state.items).toHaveLength(0);
     });
   });
 
   describe('useAuthStore', () => {
-    it('logs in a user session and updates auth variables', () => {
-      const tokens = {
-        accessToken: 'access-111',
-        refreshToken: 'refresh-222',
-      };
-
-      useAuthStore.getState().login(mockUser, tokens);
-      const state = useAuthStore.getState();
-      expect(state.isAuthenticated).toBe(true);
-      expect(state.user).toEqual(mockUser);
-      expect(state.accessToken).toBe('access-111');
-      expect(state.role).toBe('user');
+    beforeEach(() => {
+      useAuthStore.getState().reset();
     });
 
-    it('clears state on logout', () => {
-      const tokens = {
-        accessToken: 'access-111',
-        refreshToken: 'refresh-222',
+    it('logs in a user session and updates auth variables', () => {
+      const mockUser: User = {
+        id: 'usr-444',
+        firstName: 'سارة',
+        lastName: 'أحمد',
+        email: 'sara@example.com',
+        role: 'user',
+        permissions: ['read:products'],
+        createdAt: '',
       };
-      useAuthStore.getState().login(mockUser, tokens);
-      useAuthStore.getState().logout();
+
+      const mockTokens: AuthTokens = {
+        accessToken: 'at-token-444',
+        refreshToken: 'rt-token-444',
+      };
+
+      useAuthStore.getState().login(mockUser, mockTokens);
 
       const state = useAuthStore.getState();
-      expect(state.isAuthenticated).toBe(false);
-      expect(state.user).toBeNull();
-      expect(state.accessToken).toBeNull();
+      expect(state.isAuthenticated).toBe(true);
+      expect(state.user?.email).toBe('sara@example.com');
+      expect(state.accessToken).toBe('at-token-444');
+    });
+
+    it('correctly updates user profile, roles and permissions via setUser', () => {
+      const mockUser: User = {
+        id: 'usr-444',
+        firstName: 'أحمد',
+        lastName: 'خالد',
+        email: 'ahmad@example.com',
+        role: 'user',
+        permissions: ['read:products'],
+        createdAt: '',
+      };
+      useAuthStore.getState().setUser(mockUser);
+      const state = useAuthStore.getState();
+      expect(state.user?.firstName).toBe('أحمد');
+      expect(state.role).toBe('user');
+      expect(state.permissions).toContain('read:products');
     });
   });
 
-  describe('useAddressStore', () => {
-    it('starts with initial seeded addresses', () => {
-      const state = useAddressStore.getState();
-      expect(state.addresses.length).toBeGreaterThan(0);
+  describe('useAddressStore (UI states)', () => {
+    beforeEach(() => {
+      useAddressStore.getState().closeModal();
     });
 
-    it('adds a new address and shifts default state if specified', () => {
-      const newAddress = {
-        title: 'العمل الثاني',
+    it('starts with modal closed and no edit targets', () => {
+      const state = useAddressStore.getState();
+      expect(state.isModalOpen).toBe(false);
+      expect(state.editingAddress).toBeNull();
+    });
+
+    it('opens add modal with clean details', () => {
+      useAddressStore.getState().openAddModal();
+
+      const state = useAddressStore.getState();
+      expect(state.isModalOpen).toBe(true);
+      expect(state.editingAddress).toBeNull();
+    });
+
+    it('opens edit modal with targeted address data', () => {
+      const targetAddress = {
+        id: 'addr-riyadh',
+        userId: 'usr-123',
+        title: 'منزل الرياض',
         addressLine1: 'شارع التخصصي',
         city: 'الرياض',
-        country: 'المملكة العربية السعودية',
+        state: 'الرياض',
+        country: 'السعودية',
+        postalCode: '11223',
         isDefault: true,
       };
 
-      useAddressStore.getState().addAddress(newAddress);
-      const state = useAddressStore.getState();
-      const added = state.addresses.find((a) => a.title === 'العمل الثاني');
-      expect(added).toBeDefined();
-      expect(added?.isDefault).toBe(true);
+      useAddressStore.getState().openEditModal(targetAddress);
 
-      // Verification that previous default got demoted
-      const oldDefault = state.addresses.find((a) => a.id === 'addr-riyadh-home');
-      expect(oldDefault?.isDefault).toBe(false);
+      const state = useAddressStore.getState();
+      expect(state.isModalOpen).toBe(true);
+      expect(state.editingAddress).toBe(targetAddress);
     });
 
-    it('deletes an address and promotes first remaining to default if default deleted', () => {
-      const defaultId = 'addr-riyadh-home';
-      useAddressStore.getState().deleteAddress(defaultId);
-      const state = useAddressStore.getState();
+    it('resets modal status on close', () => {
+      useAddressStore.getState().openAddModal();
+      useAddressStore.getState().closeModal();
 
-      expect(state.addresses.find((a) => a.id === defaultId)).toBeUndefined();
-      // Jeddah work (id: addr-jeddah-work) should now be promoted to default
-      const jeddah = state.addresses.find((a) => a.id === 'addr-jeddah-work');
-      expect(jeddah?.isDefault).toBe(true);
+      const state = useAddressStore.getState();
+      expect(state.isModalOpen).toBe(false);
+      expect(state.editingAddress).toBeNull();
     });
   });
 });

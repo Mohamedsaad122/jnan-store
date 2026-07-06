@@ -1,6 +1,9 @@
 import { Product, Category, ApiPaginatedResponse } from '@/types/domain';
-import { MOCK_PRODUCTS, MOCK_CATEGORIES } from './products.mock';
+import { featureFlags } from '@/config/featureFlags';
+import { request } from '@/lib/api/request';
+import { MOCK_PRODUCTS, RawProduct } from './products.mock';
 import { productsMapper } from './products.mapper';
+import { categoriesService } from '@/services/categories/categories.service';
 
 export interface GetProductsParams {
   search?: string;
@@ -16,13 +19,23 @@ export interface GetProductsParams {
 
 /**
  * Service to manage product searches, category lists, details retrieval,
- * and associated mapping adaptations from mock databases.
+ * and associated mapping adaptations. Supports switching between Mock and Real APIs.
  */
 export const productsService = {
   /**
    * Get filtered, sorted and paginated products
    */
   async getProducts(params: GetProductsParams = {}): Promise<ApiPaginatedResponse<Product>> {
+    if (!featureFlags.enableMockApi) {
+      const response = await request.get<ApiPaginatedResponse<RawProduct>>('/products', {
+        params,
+      });
+      return {
+        ...response,
+        data: productsMapper.mapToProductsList(response.data),
+      };
+    }
+
     // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 600));
 
@@ -135,6 +148,11 @@ export const productsService = {
    * Fetch a single product by its unique ID
    */
   async getProductById(id: string): Promise<Product | undefined> {
+    if (!featureFlags.enableMockApi) {
+      const raw = await request.get<RawProduct>(`/products/${id}`);
+      return productsMapper.mapToProduct(raw);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 300));
     const raw = MOCK_PRODUCTS.find((p) => p.id === id && p.isActive);
     if (!raw) return undefined;
@@ -145,6 +163,11 @@ export const productsService = {
    * Fetch a single product by its unique Slug
    */
   async getProductBySlug(slug: string): Promise<Product | undefined> {
+    if (!featureFlags.enableMockApi) {
+      const raw = await request.get<RawProduct>(`/products/slug/${slug}`);
+      return productsMapper.mapToProduct(raw);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 300));
     const raw = MOCK_PRODUCTS.find((p) => p.slug === slug && p.isActive);
     if (!raw) return undefined;
@@ -155,6 +178,11 @@ export const productsService = {
    * Expose Featured products (used on Homepage)
    */
   async getFeaturedProducts(): Promise<Product[]> {
+    if (!featureFlags.enableMockApi) {
+      const raw = await request.get<RawProduct[]>('/products/featured');
+      return productsMapper.mapToProductsList(raw);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 400));
     const raw = MOCK_PRODUCTS.filter((p) => p.isFeatured && p.isActive);
     return productsMapper.mapToProductsList(raw);
@@ -164,8 +192,12 @@ export const productsService = {
    * Expose Best Seller products (used on Homepage)
    */
   async getBestSellerProducts(): Promise<Product[]> {
+    if (!featureFlags.enableMockApi) {
+      const raw = await request.get<RawProduct[]>('/products/best-sellers');
+      return productsMapper.mapToProductsList(raw);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 400));
-    // Simulate top rated or highest sales count products
     const raw = MOCK_PRODUCTS.filter((p) => p.isActive)
       .sort((a, b) => b.reviewsCount - a.reviewsCount)
       .slice(0, 4);
@@ -176,6 +208,11 @@ export const productsService = {
    * Expose Flash Sale products (discounted products)
    */
   async getFlashSaleProducts(): Promise<Product[]> {
+    if (!featureFlags.enableMockApi) {
+      const raw = await request.get<RawProduct[]>('/products/flash-sales');
+      return productsMapper.mapToProductsList(raw);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 400));
     const raw = MOCK_PRODUCTS.filter((p) => p.salePrice && p.salePrice < p.price && p.isActive);
     return productsMapper.mapToProductsList(raw);
@@ -185,6 +222,11 @@ export const productsService = {
    * Expose related products within same category
    */
   async getRelatedProducts(productId: string): Promise<Product[]> {
+    if (!featureFlags.enableMockApi) {
+      const raw = await request.get<RawProduct[]>(`/products/${productId}/related`);
+      return productsMapper.mapToProductsList(raw);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 400));
     const target = MOCK_PRODUCTS.find((p) => p.id === productId);
     if (!target) return [];
@@ -199,6 +241,11 @@ export const productsService = {
    */
   async getProductsByIds(ids: string[]): Promise<Product[]> {
     if (!ids || ids.length === 0) return [];
+    if (!featureFlags.enableMockApi) {
+      const raw = await request.post<RawProduct[]>('/products/batch', { ids });
+      return productsMapper.mapToProductsList(raw);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 300));
     const raw = MOCK_PRODUCTS.filter((p) => ids.includes(p.id) && p.isActive);
     return productsMapper.mapToProductsList(raw);
@@ -208,8 +255,7 @@ export const productsService = {
    * Fetch active categories list
    */
   async getCategories(): Promise<Category[]> {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return MOCK_CATEGORIES.filter((c) => c.isActive);
+    return categoriesService.getCategories();
   },
 };
 
