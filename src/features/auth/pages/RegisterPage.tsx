@@ -12,6 +12,8 @@ import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import ROUTES from '@/constants/routes';
+import { featureFlags } from '@/config/featureFlags';
+import { showDemoOtpToast } from '../utils/demoHelper';
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -56,7 +58,11 @@ export const RegisterPage: React.FC = () => {
         termsAccepted: data.termsAccepted,
       });
 
-      toast.success(response.message || 'تم إرسال رمز التحقق بنجاح!');
+      if (featureFlags.enableMockApi) {
+        showDemoOtpToast();
+      } else {
+        toast.success(response.message || 'تم إرسال رمز التحقق بنجاح!');
+      }
 
       // Redirect to email OTP verification page, passing email as query param
       navigate(`${ROUTES.AUTH.VERIFY || '/auth/verify'}?email=${encodeURIComponent(data.email)}`);

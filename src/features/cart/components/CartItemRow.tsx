@@ -5,11 +5,13 @@ import { CartItemState } from '@/store/cart.store';
 import { formatCurrency } from '@/utils/currency';
 import { useLanguageStore } from '@/store/language.store';
 import QuantitySelector from '@/components/ui/QuantitySelector';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 interface CartItemRowProps {
   item: CartItemState;
   onUpdateQuantity: (productId: string, quantity: number) => void;
   onRemove: (productId: string) => void;
+  onSaveForLater?: (productId: string) => void;
   variant?: 'page' | 'drawer';
 }
 
@@ -17,10 +19,12 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
   item,
   onUpdateQuantity,
   onRemove,
+  onSaveForLater,
   variant = 'page',
 }) => {
   const { t } = useTranslation();
   const { language } = useLanguageStore();
+  const isRtl = language === 'ar';
 
   const isDrawer = variant === 'drawer';
 
@@ -39,11 +43,11 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
             isDrawer ? 'h-14 w-14 rounded-lg' : 'h-20 w-20'
           }`}
         >
-          <img
+          <OptimizedImage
             src={item.imageUrl || '/assets/images/placeholder.png'}
             alt={item.name}
+            aspectRatioClassName="w-full h-full"
             className="h-full w-full object-cover"
-            loading="lazy"
           />
         </div>
 
@@ -59,6 +63,16 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
           <span className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 font-sans">
             {formatCurrency(item.price, language)}
           </span>
+
+          {/* Save for Later shortcut link */}
+          {!isDrawer && onSaveForLater && (
+            <button
+              onClick={() => onSaveForLater(item.productId)}
+              className="text-[10px] font-bold text-gold hover:text-gold/80 hover:underline mt-1.5 text-right cursor-pointer self-start bg-transparent border-0"
+            >
+              {isRtl ? 'حفظ لوقت لاحق' : 'Save for Later'}
+            </button>
+          )}
 
           {/* Quantity selector on mobile for standard page layout */}
           {!isDrawer && (
@@ -112,4 +126,4 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
   );
 };
 
-export default CartItemRow;
+export default React.memo(CartItemRow);

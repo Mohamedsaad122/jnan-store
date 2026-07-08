@@ -1,11 +1,8 @@
 import React from 'react';
+import { Navigate } from 'react-router-dom';
 
 const Profile: React.FC = () => {
-  return (
-    <div className="container py-8">
-      <h1 className="text-3xl font-bold">Profile Page</h1>
-    </div>
-  );
+  return <Navigate to="/dashboard/profile" replace />;
 };
 
 export default Profile;

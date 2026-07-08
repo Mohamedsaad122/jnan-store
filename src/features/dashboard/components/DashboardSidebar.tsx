@@ -154,7 +154,9 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             >
               {getIcon(
                 item.iconName,
-                isActive ? 'h-5 w-5 text-gold shrink-0' : 'h-5 w-5 text-muted-foreground shrink-0'
+                isActive
+                  ? 'h-5 w-5 text-primary-foreground shrink-0'
+                  : 'h-5 w-5 text-muted-foreground shrink-0'
               )}
               {!isCollapsed && <span className="truncate">{t(item.labelKey)}</span>}
             </Link>

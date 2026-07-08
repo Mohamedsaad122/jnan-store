@@ -1,10 +1,14 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Eye, Truck, FileText, RefreshCw } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import OrderStatusBadge, { OrderStatus } from './OrderStatusBadge';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { Order } from '@/types/domain';
+import { toast } from 'react-hot-toast';
+import { useCartStore as useCartStoreActual } from '@/store/cart.store';
 
 interface OrderCardProps {
   order: Order;
@@ -14,6 +18,7 @@ interface OrderCardProps {
 
 export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails, isRtl }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -26,6 +31,98 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails, isRt
 
   const formatPrice = (num: number) => {
     return isRtl ? `${new Intl.NumberFormat('ar-SA').format(num)} ر.س` : `${num.toFixed(2)} SAR`;
+  };
+
+  const getPaymentMethodLabel = (method?: string) => {
+    switch (method) {
+      case 'mada':
+        return isRtl ? 'مدى' : 'Mada';
+      case 'visa':
+        return isRtl ? 'فيزا' : 'Visa';
+      case 'applepay':
+      case 'apple_pay':
+        return isRtl ? 'أبل باي' : 'Apple Pay';
+      case 'cod':
+      case 'cash_on_delivery':
+        return isRtl ? 'الدفع عند الاستلام' : 'Cash on Delivery';
+      case 'stcpay':
+        return isRtl ? 'stc pay' : 'STC Pay';
+      default:
+        return isRtl ? 'بطاقة ائتمانية' : 'Credit Card';
+    }
+  };
+
+  const getDeliveryMethodLabel = () => {
+    if (!order.shippingMethod) return isRtl ? 'شحن قياسي' : 'Standard Shipping';
+    return isRtl ? order.shippingMethod.nameAr : order.shippingMethod.nameEn;
+  };
+
+  const getDeliveryDateLabel = () => {
+    if (order.status === 'delivered') {
+      return isRtl
+        ? `تم التوصيل في ${formatDate(order.updatedAt)}`
+        : `Delivered on ${formatDate(order.updatedAt)}`;
+    }
+    if (order.status === 'cancelled') {
+      return isRtl ? 'طلب ملغي' : 'Cancelled';
+    }
+    return isRtl
+      ? `التوصيل المتوقع: ${order.shippingMethod?.estimatedDeliveryAr || '٣-٥ أيام عمل'}`
+      : `Est. Delivery: ${order.shippingMethod?.estimatedDeliveryEn || '3-5 business days'}`;
+  };
+
+  const handleTrackOrder = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toast.success(
+      isRtl
+        ? `رقم التتبع: ${order.trackingNumber || 'JN-TRK-9831749'} عبر شركة شحن ناقل (التسليم المتوقع خلال يومين)`
+        : `Tracking Ref: ${order.trackingNumber || 'JN-TRK-9831749'} via Naqel Express (Est. Delivery 2 days)`,
+      {
+        duration: 5000,
+        style: {
+          border: '1px solid rgba(196, 160, 84, 0.3)',
+          padding: '12px',
+          borderRadius: '16px',
+          background: 'var(--card)',
+          color: 'var(--card-foreground)',
+        },
+      }
+    );
+  };
+
+  const handleDownloadInvoice = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toast.success(
+      isRtl
+        ? `جاري تحميل الفاتورة للطلب ${order.orderNumber}...`
+        : `Downloading invoice for order ${order.orderNumber}...`
+    );
+  };
+
+  const handleReorder = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      order.items.forEach((item) => {
+        useCartStoreActual.getState().addItem({
+          productId: item.productId,
+          name: isRtl ? item.productNameAr : item.productNameEn,
+          price: item.price,
+          quantity: item.quantity,
+          imageUrl: item.imageUrl,
+        });
+      });
+      toast.success(
+        isRtl
+          ? 'تمت إعادة إضافة منتجات هذا الطلب إلى سلتك بنجاح!'
+          : 'Order items have been successfully added to your cart!'
+      );
+      navigate('/cart');
+    } catch {
+      toast.error(isRtl ? 'فشل إعادة طلب المنتجات' : 'Failed to reorder items');
+    }
   };
 
   return (
@@ -63,6 +160,36 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails, isRt
         </div>
       </div>
 
+      {/* Sub-row for payment & delivery status */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs py-3 bg-muted/10 px-4 rounded-xl border border-border/5 mb-4 select-text">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-muted-foreground text-[10px]">
+            {isRtl ? 'طريقة الدفع' : 'Payment Method'}
+          </span>
+          <span className="font-bold text-primary">
+            {getPaymentMethodLabel(order.paymentMethod)}
+          </span>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <span className="text-muted-foreground text-[10px]">
+            {isRtl ? 'طريقة التوصيل' : 'Delivery Method'}
+          </span>
+          <span className="font-bold text-primary">{getDeliveryMethodLabel()}</span>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <span className="text-muted-foreground text-[10px]">
+            {isRtl ? 'موعد التوصيل' : 'Delivery Date'}
+          </span>
+          <span className="font-bold text-primary">{getDeliveryDateLabel()}</span>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <span className="text-muted-foreground text-[10px]">
+            {isRtl ? 'رقم التتبع' : 'Tracking Number'}
+          </span>
+          <span className="font-bold text-primary font-sans">{order.trackingNumber || '-'}</span>
+        </div>
+      </div>
+
       {/* Items Preview */}
       <div className="space-y-3 py-1">
         {order.items.map((item) => (
@@ -72,10 +199,11 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails, isRt
           >
             <div className="flex items-center gap-3 min-w-0">
               {item.imageUrl ? (
-                <img
+                <OptimizedImage
                   src={item.imageUrl}
                   alt={isRtl ? item.productNameAr : item.productNameEn}
-                  className="h-10 w-10 object-cover rounded-lg border border-border/40 shrink-0"
+                  aspectRatioClassName="w-10 h-10 shrink-0"
+                  className="h-full w-full object-cover rounded-lg border border-border/40"
                 />
               ) : (
                 <div className="h-10 w-10 bg-muted/40 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground text-[10px] shrink-0">
@@ -109,16 +237,54 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails, isRt
           </span>
         </div>
 
-        <Button
-          onClick={() => onViewDetails(order.id)}
-          variant="outline"
-          size="sm"
-          className="text-xs font-bold gap-1 border-border/40 hover:bg-gold/10"
-        >
-          <Eye className="h-3.5 w-3.5" />
-          <span>{t('orders.action.view', 'عرض التفاصيل')}</span>
-          {isRtl ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-        </Button>
+        <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end flex-wrap">
+          {/* Invoice action */}
+          <Button
+            onClick={handleDownloadInvoice}
+            variant="ghost"
+            size="sm"
+            className="text-xs font-bold gap-1 text-muted-foreground hover:text-primary hover:bg-muted/30"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            <span>{isRtl ? 'الفاتورة' : 'Invoice'}</span>
+          </Button>
+
+          {/* Track Order action */}
+          {['processing', 'shipped', 'delivered'].includes(order.status) && (
+            <Button
+              onClick={handleTrackOrder}
+              variant="ghost"
+              size="sm"
+              className="text-xs font-bold gap-1.5 text-gold hover:bg-gold/5 border border-transparent hover:border-gold/15"
+            >
+              <Truck className="h-3.5 w-3.5" />
+              <span>{isRtl ? 'تتبع الشحنة' : 'Track'}</span>
+            </Button>
+          )}
+
+          {/* Reorder action */}
+          <Button
+            onClick={handleReorder}
+            variant="outline"
+            size="sm"
+            className="text-xs font-bold gap-1.5 border-gold/25 text-gold hover:bg-gold/10"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            <span>{isRtl ? 'إعادة طلب' : 'Reorder'}</span>
+          </Button>
+
+          {/* View Details action */}
+          <Button
+            onClick={() => onViewDetails(order.id)}
+            variant="outline"
+            size="sm"
+            className="text-xs font-bold gap-1 border-border/40 hover:bg-gold/10"
+          >
+            <Eye className="h-3.5 w-3.5" />
+            <span>{t('orders.action.view', 'عرض التفاصيل')}</span>
+            {isRtl ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          </Button>
+        </div>
       </div>
     </Card>
   );

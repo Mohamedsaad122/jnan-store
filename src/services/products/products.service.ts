@@ -1,21 +1,38 @@
-import { Product, Category, ApiPaginatedResponse } from '@/types/domain';
+import { Product, Category, ApiPaginatedResponse, Brand } from '@/types/domain';
 import { featureFlags } from '@/config/featureFlags';
 import { request } from '@/lib/api/request';
-import { MOCK_PRODUCTS, RawProduct } from './products.mock';
+import { MOCK_PRODUCTS, RawProduct, MOCK_BRANDS } from './products.mock';
 import { productsMapper } from './products.mapper';
 import { categoriesService } from '@/services/categories/categories.service';
+import { MOCK_CATEGORIES } from '../categories/categories.mock';
 
 export interface GetProductsParams {
   search?: string;
   category?: string;
+  categories?: string[];
+  brands?: string[];
   minPrice?: number | null;
   maxPrice?: number | null;
   rating?: number | null;
+  discount?: number | null;
   inStock?: boolean;
+  featured?: boolean;
+  bestSeller?: boolean;
+  newArrival?: boolean;
+  colors?: string[];
+  sizes?: string[];
   sort?: string;
   page?: number;
   limit?: number;
 }
+
+/**
+ * Resolves a category search parameter (ID or slug) to its corresponding Category object.
+ */
+export const resolveCategory = (categoryParam: string | undefined): Category | undefined => {
+  if (!categoryParam || categoryParam === 'all') return undefined;
+  return MOCK_CATEGORIES.find((c) => c.id === categoryParam || c.slug === categoryParam);
+};
 
 /**
  * Service to manage product searches, category lists, details retrieval,
@@ -42,10 +59,18 @@ export const productsService = {
     const {
       search = '',
       category = '',
+      categories = [],
+      brands = [],
       minPrice = null,
       maxPrice = null,
       rating = null,
+      discount = null,
       inStock = false,
+      featured = false,
+      bestSeller = false,
+      newArrival = false,
+      colors = [],
+      sizes = [],
       sort = 'featured',
       page = 1,
       limit = 12,
@@ -66,9 +91,22 @@ export const productsService = {
       );
     }
 
-    // 2. Category Filter
-    if (category && category !== 'all') {
-      filtered = filtered.filter((p) => p.categoryId === category);
+    // 2. Category Filter (Supports both multi-select categories and single legacy category)
+    if (categories && categories.length > 0) {
+      const targetSlugs = categories.map((cat) => {
+        const categoryObj = resolveCategory(cat);
+        return categoryObj ? categoryObj.slug : cat;
+      });
+      filtered = filtered.filter((p) => targetSlugs.includes(p.categoryId));
+    } else if (category && category !== 'all') {
+      const categoryObj = resolveCategory(category);
+      const targetCategorySlug = categoryObj ? categoryObj.slug : category;
+      filtered = filtered.filter((p) => p.categoryId === targetCategorySlug);
+    }
+
+    // 2.5 Brand Filter
+    if (brands && brands.length > 0) {
+      filtered = filtered.filter((p) => p.brandId && brands.includes(p.brandId));
     }
 
     // 3. Price Filters
@@ -88,6 +126,36 @@ export const productsService = {
     // 4. Rating Filter
     if (rating !== null) {
       filtered = filtered.filter((p) => p.rating >= rating);
+    }
+
+    // 4.5 Discount Filter
+    if (discount !== null) {
+      filtered = filtered.filter((p) => {
+        if (!p.salePrice || p.salePrice >= p.price) return false;
+        const savedPercent = Math.round(((p.price - p.salePrice) / p.price) * 100);
+        return savedPercent >= discount;
+      });
+    }
+
+    // 4.6 Collections Filters
+    if (featured) {
+      filtered = filtered.filter((p) => p.isFeatured);
+    }
+    if (bestSeller) {
+      // Mock: treat products with rating >= 4.8 as best sellers
+      filtered = filtered.filter((p) => p.rating >= 4.8);
+    }
+    if (newArrival) {
+      // Mock: treat dates and sweets as new arrivals
+      filtered = filtered.filter((p) => p.categoryId === 'dates' || p.categoryId === 'sweets');
+    }
+
+    // 4.7 Future-Ready Colors & Sizes mock filters
+    if (colors && colors.length > 0) {
+      filtered = filtered.filter((p) => p.nameAr || p.nameEn);
+    }
+    if (sizes && sizes.length > 0) {
+      filtered = filtered.filter((p) => p.nameAr || p.nameEn);
     }
 
     // 5. Stock Filter
@@ -256,6 +324,18 @@ export const productsService = {
    */
   async getCategories(): Promise<Category[]> {
     return categoriesService.getCategories();
+  },
+
+  /**
+   * Fetch active brands list
+   */
+  async getBrands(): Promise<Brand[]> {
+    if (!featureFlags.enableMockApi) {
+      const raw = await request.get<Brand[]>('/brands');
+      return raw;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return MOCK_BRANDS;
   },
 };
 

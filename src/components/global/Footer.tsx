@@ -81,6 +81,22 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <Link
+                  to={ROUTES.BEST_SELLERS}
+                  className="text-muted-foreground hover:text-gold transition-colors"
+                >
+                  {t('nav.best_sellers', 'الأكثر مبيعاً')}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to={ROUTES.OFFERS}
+                  className="text-muted-foreground hover:text-gold transition-colors"
+                >
+                  {t('nav.offers', 'العروض')}
+                </Link>
+              </li>
+              <li>
+                <Link
                   to={ROUTES.CATEGORIES}
                   className="text-muted-foreground hover:text-gold transition-colors"
                 >

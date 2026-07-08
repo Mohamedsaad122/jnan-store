@@ -12,10 +12,13 @@ export interface CartItemState {
 
 interface CartState {
   items: CartItemState[];
+  savedForLater: CartItemState[];
   isOpen: boolean;
   appliedCoupon: Coupon | null;
   totalAmount: number; // Pre-calculated total for backward-compatibility
   totalQuantity: number; // Pre-calculated count for backward-compatibility
+  giftWrap: boolean;
+  giftMessage: string;
 
   // Actions
   setOpen: (isOpen: boolean) => void;
@@ -26,18 +29,24 @@ interface CartState {
   applyCoupon: (coupon: Coupon) => void;
   removeCoupon: () => void;
 
+  moveToSaved: (productId: string) => void;
+  moveToCart: (productId: string) => void;
+  removeFromSaved: (productId: string) => void;
+  setGiftOptions: (giftWrap: boolean, giftMessage: string) => void;
+
   // Getters
   getItemsCount: () => number;
   getSubtotal: () => number;
   getDiscountAmount: () => number;
   getShippingFee: () => number;
   getTaxAmount: () => number;
+  getGiftWrapFee: () => number;
   getTotal: () => number;
   reset: () => void;
 }
 
 // Helper to calculate totals for state updates
-const calculateTotals = (items: CartItemState[], coupon: Coupon | null) => {
+const calculateTotals = (items: CartItemState[], coupon: Coupon | null, giftWrap = false) => {
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -60,7 +69,8 @@ const calculateTotals = (items: CartItemState[], coupon: Coupon | null) => {
 
   const shipping = subtotal > 0 && subtotal >= 200 ? 0 : subtotal > 0 ? 15 : 0;
   const tax = Math.max(0, (subtotal - discount) * 0.15); // Saudi VAT 15%
-  const totalAmount = Math.max(0, subtotal - discount + shipping + tax);
+  const giftFee = giftWrap ? 10 : 0;
+  const totalAmount = Math.max(0, subtotal - discount + shipping + tax + giftFee);
 
   return {
     totalQuantity,
@@ -68,24 +78,22 @@ const calculateTotals = (items: CartItemState[], coupon: Coupon | null) => {
   };
 };
 
-/**
- * Global Zustand store managing the shopping cart items, drawer visibility,
- * applied coupons, and automatic VAT, shipping, and total calculations.
- * Persists the cart items state to localStorage automatically.
- */
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      savedForLater: [],
       isOpen: false,
       appliedCoupon: null,
       totalAmount: 0,
       totalQuantity: 0,
+      giftWrap: false,
+      giftMessage: '',
 
       setOpen: (isOpen) => set({ isOpen }),
 
       addItem: (newItem) => {
-        const { items, appliedCoupon } = get();
+        const { items, appliedCoupon, giftWrap } = get();
         const qtyToAdd = newItem.quantity || 1;
         const existingIdx = items.findIndex((item) => item.productId === newItem.productId);
 
@@ -100,7 +108,7 @@ export const useCartStore = create<CartState>()(
           updatedItems = [...items, { ...newItem, quantity: qtyToAdd }];
         }
 
-        const totals = calculateTotals(updatedItems, appliedCoupon);
+        const totals = calculateTotals(updatedItems, appliedCoupon, giftWrap);
         set({
           items: updatedItems,
           ...totals,
@@ -108,9 +116,9 @@ export const useCartStore = create<CartState>()(
       },
 
       removeItem: (productId) => {
-        const { items, appliedCoupon } = get();
+        const { items, appliedCoupon, giftWrap } = get();
         const updatedItems = items.filter((item) => item.productId !== productId);
-        const totals = calculateTotals(updatedItems, appliedCoupon);
+        const totals = calculateTotals(updatedItems, appliedCoupon, giftWrap);
         set({
           items: updatedItems,
           ...totals,
@@ -118,7 +126,7 @@ export const useCartStore = create<CartState>()(
       },
 
       updateQuantity: (productId, quantity) => {
-        const { items, appliedCoupon } = get();
+        const { items, appliedCoupon, giftWrap } = get();
         if (quantity <= 0) {
           get().removeItem(productId);
           return;
@@ -127,7 +135,7 @@ export const useCartStore = create<CartState>()(
         const updatedItems = items.map((item) =>
           item.productId === productId ? { ...item, quantity } : item
         );
-        const totals = calculateTotals(updatedItems, appliedCoupon);
+        const totals = calculateTotals(updatedItems, appliedCoupon, giftWrap);
         set({
           items: updatedItems,
           ...totals,
@@ -140,12 +148,14 @@ export const useCartStore = create<CartState>()(
           appliedCoupon: null,
           totalAmount: 0,
           totalQuantity: 0,
+          giftWrap: false,
+          giftMessage: '',
         });
       },
 
       applyCoupon: (coupon) => {
-        const { items } = get();
-        const totals = calculateTotals(items, coupon);
+        const { items, giftWrap } = get();
+        const totals = calculateTotals(items, coupon, giftWrap);
         set({
           appliedCoupon: coupon,
           ...totals,
@@ -153,10 +163,70 @@ export const useCartStore = create<CartState>()(
       },
 
       removeCoupon: () => {
-        const { items } = get();
-        const totals = calculateTotals(items, null);
+        const { items, giftWrap } = get();
+        const totals = calculateTotals(items, null, giftWrap);
         set({
           appliedCoupon: null,
+          ...totals,
+        });
+      },
+
+      moveToSaved: (productId) => {
+        const { items, savedForLater, appliedCoupon, giftWrap } = get();
+        const target = items.find((item) => item.productId === productId);
+        if (!target) return;
+
+        const updatedItems = items.filter((item) => item.productId !== productId);
+        const updatedSaved = [...savedForLater.filter((s) => s.productId !== productId), target];
+
+        const totals = calculateTotals(updatedItems, appliedCoupon, giftWrap);
+        set({
+          items: updatedItems,
+          savedForLater: updatedSaved,
+          ...totals,
+        });
+      },
+
+      moveToCart: (productId) => {
+        const { items, savedForLater, appliedCoupon, giftWrap } = get();
+        const target = savedForLater.find((item) => item.productId === productId);
+        if (!target) return;
+
+        const updatedSaved = savedForLater.filter((item) => item.productId !== productId);
+        const existingIdx = items.findIndex((item) => item.productId === productId);
+
+        let updatedItems: CartItemState[];
+        if (existingIdx > -1) {
+          updatedItems = [...items];
+          updatedItems[existingIdx] = {
+            ...updatedItems[existingIdx],
+            quantity: updatedItems[existingIdx].quantity + target.quantity,
+          };
+        } else {
+          updatedItems = [...items, target];
+        }
+
+        const totals = calculateTotals(updatedItems, appliedCoupon, giftWrap);
+        set({
+          items: updatedItems,
+          savedForLater: updatedSaved,
+          ...totals,
+        });
+      },
+
+      removeFromSaved: (productId) => {
+        const { savedForLater } = get();
+        set({
+          savedForLater: savedForLater.filter((item) => item.productId !== productId),
+        });
+      },
+
+      setGiftOptions: (giftWrap, giftMessage) => {
+        const { items, appliedCoupon } = get();
+        const totals = calculateTotals(items, appliedCoupon, giftWrap);
+        set({
+          giftWrap,
+          giftMessage,
           ...totals,
         });
       },
@@ -203,20 +273,28 @@ export const useCartStore = create<CartState>()(
         return Math.max(0, (subtotal - discount) * 0.15);
       },
 
+      getGiftWrapFee: () => {
+        return get().giftWrap ? 10 : 0;
+      },
+
       getTotal: () => {
         const subtotal = get().getSubtotal();
         const discount = get().getDiscountAmount();
         const shipping = get().getShippingFee();
         const tax = get().getTaxAmount();
-        return Math.max(0, subtotal - discount + shipping + tax);
+        const giftFee = get().getGiftWrapFee();
+        return Math.max(0, subtotal - discount + shipping + tax + giftFee);
       },
 
       reset: () => {
         set({
           items: [],
+          savedForLater: [],
           appliedCoupon: null,
           totalAmount: 0,
           totalQuantity: 0,
+          giftWrap: false,
+          giftMessage: '',
           isOpen: false,
         });
       },

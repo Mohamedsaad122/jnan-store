@@ -1,6 +1,5 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { AlertTriangle, ArrowRight, ArrowLeft } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useProductDetails } from '@/hooks/useProducts';
 import { useLanguageStore } from '@/store/language.store';
@@ -9,10 +8,12 @@ import ProductInfo from '@/features/products/components/ProductInfo';
 import ProductTabs from '@/features/products/components/ProductTabs';
 import RelatedProducts from '@/features/products/components/RelatedProducts';
 import RecentlyViewed from '@/features/products/components/RecentlyViewed';
+import ProductRecommendationSection from '@/components/global/ProductRecommendationSection';
 import ProductDetailsSkeleton from '@/features/products/components/ProductDetailsSkeleton';
 import Breadcrumb from '@/components/ui/Breadcrumb';
-import Button from '@/components/ui/Button';
+import ErrorState from '@/components/ui/ErrorState';
 import ROUTES from '@/constants/routes';
+import { Helmet } from 'react-helmet-async';
 
 export const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +22,7 @@ export const ProductDetails: React.FC = () => {
   const isRtl = language === 'ar';
 
   // Fetch product details reactive to parameters changes (by ID or Slug)
-  const { data: product, isLoading, isError } = useProductDetails(id || '');
+  const { data: product, isLoading, isError, refetch } = useProductDetails(id || '');
 
   // 1. Loading Skeleton viewport
   if (isLoading) {
@@ -31,28 +32,20 @@ export const ProductDetails: React.FC = () => {
   // 2. Product Not Found or fetch error panels
   if (isError || !product) {
     return (
-      <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center text-center font-tajawal">
-        <div className="w-16 h-16 rounded-full bg-destructive/10 text-destructive flex items-center justify-center mb-5 border border-destructive/15">
-          <AlertTriangle className="h-8 w-8" />
-        </div>
-        <h2 className="text-xl font-bold text-primary mb-2">
-          {t('product.not_found', { defaultValue: 'عذراً، المنتج غير متوفر حالياً' })}
-        </h2>
-        <p className="text-xs md:text-sm text-muted-foreground max-w-sm mb-6 leading-relaxed">
-          {t('product.not_found_desc', {
+      <div className="container mx-auto px-4 py-16">
+        <Helmet>
+          <title>{isRtl ? 'المنتج غير موجود | متجر جنان' : 'Product Not Found | Jnan Store'}</title>
+        </Helmet>
+        <ErrorState
+          type="404"
+          title={t('product.not_found', { defaultValue: 'عذراً، المنتج غير متوفر حالياً' })}
+          description={t('product.not_found_desc', {
             defaultValue:
               'ربما تم إزالة المنتج أو انتهت صلاحية الرابط. يمكنك تصفح المنتجات المتوفرة الأخرى في متجرنا.',
           })}
-        </p>
-        <Link to={ROUTES.SHOP}>
-          <Button
-            variant="primary"
-            className="flex items-center gap-2 h-10 px-5 text-xs font-bold rounded-lg shadow-md"
-          >
-            {isRtl ? <ArrowRight className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
-            <span>{t('product.back_to_shop', { defaultValue: 'العودة للمتجر' })}</span>
-          </Button>
-        </Link>
+          onRetry={refetch}
+          showHomeButton={true}
+        />
       </div>
     );
   }
@@ -65,7 +58,27 @@ export const ProductDetails: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-16 font-tajawal text-right">
+    <div
+      className="min-h-screen bg-background pb-16 font-tajawal text-right"
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
+      <Helmet>
+        <title>{isRtl ? `${product.nameAr} | متجر جنان` : `${product.nameEn} | Jnan Store`}</title>
+        <meta name="description" content={isRtl ? product.descriptionAr : product.descriptionEn} />
+        <meta property="og:title" content={isRtl ? product.nameAr : product.nameEn} />
+        <meta
+          property="og:description"
+          content={isRtl ? product.descriptionAr : product.descriptionEn}
+        />
+        <meta property="og:image" content={product.images[0]?.url} />
+        <meta name="twitter:title" content={isRtl ? product.nameAr : product.nameEn} />
+        <meta
+          name="twitter:description"
+          content={isRtl ? product.descriptionAr : product.descriptionEn}
+        />
+        <meta name="twitter:image" content={product.images[0]?.url} />
+      </Helmet>
+
       <div className="container mx-auto px-4 md:px-6 py-6 select-none">
         {/* Navigation Breadcrumbs */}
         <Breadcrumb items={breadcrumbItems} isRtl={isRtl} />
@@ -93,6 +106,30 @@ export const ProductDetails: React.FC = () => {
         {/* Related Products shelf (same category) */}
         <section className="mt-4">
           <RelatedProducts productId={product.id} />
+        </section>
+
+        {/* Frequently Bought Together recommendations */}
+        <section className="mt-4">
+          <ProductRecommendationSection
+            type="frequently-together"
+            productId={product.id}
+            categoryId={product.categoryId}
+            titleAr="غالباً ما يُشترى معاً"
+            titleEn="Frequently Bought Together"
+            limit={4}
+          />
+        </section>
+
+        {/* Customers Also Bought recommendations */}
+        <section className="mt-4">
+          <ProductRecommendationSection
+            type="also-bought"
+            productId={product.id}
+            categoryId={product.categoryId}
+            titleAr="عملاء اشتروا هذا المنتج أيضاً اشتروا"
+            titleEn="Customers Also Bought"
+            limit={4}
+          />
         </section>
 
         {/* Recently Viewed shelf (tracks visited items) */}

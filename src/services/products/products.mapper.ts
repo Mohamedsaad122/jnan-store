@@ -1,5 +1,6 @@
 import { Product, ProductImage, ProductVariant, Review } from '@/types/domain';
-import { RawProduct, MOCK_CATEGORIES, MOCK_BRANDS, MOCK_REVIEWS } from './products.mock';
+import { RawProduct, MOCK_BRANDS, MOCK_REVIEWS } from './products.mock';
+import { MOCK_CATEGORIES } from '../categories/categories.mock';
 
 export const productsMapper = {
   /**
@@ -64,7 +65,9 @@ export const productsMapper = {
    * Transforms raw product data into the Product domain model
    */
   mapToProduct(raw: RawProduct): Product {
-    const category = MOCK_CATEGORIES.find((c) => c.id === raw.categoryId);
+    const category = MOCK_CATEGORIES.find(
+      (c) => c.slug === raw.categoryId || c.id === raw.categoryId
+    );
     const brand = MOCK_BRANDS.find((b) => b.id === raw.brandId);
 
     // Map reviews belonging to this product

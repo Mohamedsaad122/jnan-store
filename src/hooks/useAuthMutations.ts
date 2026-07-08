@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authService } from '@/services/auth/auth.service';
 import { useAuthStore } from '@/store/auth.store';
+import { useCartStore } from '@/store/cart.store';
+import { useCompareStore } from '@/store/compare.store';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { toast } from 'react-hot-toast';
 import { User, LoginRequest, RegisterRequest } from '@/features/auth/types';
@@ -47,6 +49,12 @@ export const useLogout = () => {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_refresh_token');
       logoutStore();
+      try {
+        useCartStore.getState().reset();
+        useCompareStore.getState().clearCompare();
+      } catch (err) {
+        console.error('Failed to clear Zustand stores:', err);
+      }
       queryClient.clear();
       toast.success('تم تسجيل الخروج بنجاح');
     },
@@ -66,6 +74,10 @@ export const useUpdateProfile = () => {
       lastName: string;
       phone?: string;
       avatarUrl?: string;
+      country?: string;
+      city?: string;
+      address?: string;
+      dob?: string;
     }) => authService.updateProfile(profileData),
     // Optimistic Update
     onMutate: async (newProfile) => {

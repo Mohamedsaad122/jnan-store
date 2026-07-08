@@ -18,6 +18,12 @@ export const MOCK_USERS_DB: MockUserRecord[] = [
       permissions: ['read:products', 'write:reviews'],
       avatarUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Abdullah',
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(), // 30 days ago
+      country: 'المملكة العربية السعودية',
+      city: 'الرياض',
+      address: 'طريق الملك فهد، حي الصحافة',
+      dob: '1992-08-15',
+      isEmailVerified: true,
+      accountStatus: 'active',
     },
     passwordHash: 'User123!',
   },

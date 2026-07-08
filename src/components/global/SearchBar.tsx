@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
-import { Command } from '@/components/ui/Command';
+import AdvancedSearch from '@/components/global/AdvancedSearch';
 
 export const SearchBar: React.FC = () => {
   const [isOpen, setOpen] = useState(false);
@@ -20,7 +20,7 @@ export const SearchBar: React.FC = () => {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex h-10 w-full items-center justify-between rounded-lg border bg-muted/40 px-3 py-2 text-sm text-muted-foreground hover:bg-muted/70 transition-colors focus:outline-none focus:ring-2 focus:ring-ring max-w-[240px] md:max-w-[280px]"
+        className="flex h-10 w-full items-center justify-between rounded-lg border bg-muted/40 px-3 py-2 text-sm text-muted-foreground hover:bg-muted/70 transition-colors focus:outline-none focus:ring-2 focus:ring-ring max-w-[240px] md:max-w-[280px] cursor-pointer"
         aria-label="البحث عن المنتجات"
       >
         <span className="flex items-center">
@@ -32,11 +32,7 @@ export const SearchBar: React.FC = () => {
         </kbd>
       </button>
 
-      <Command isOpen={isOpen} onClose={() => setOpen(false)}>
-        <div className="py-8 text-center text-sm text-muted-foreground font-tajawal">
-          ابدأ الكتابة للبحث عن القهوة السعودية، المكسرات المحمصة، الحلويات...
-        </div>
-      </Command>
+      <AdvancedSearch isOpen={isOpen} onClose={() => setOpen(false)} />
     </>
   );
 };

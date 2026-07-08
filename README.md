@@ -19,6 +19,9 @@ To preserve and promote traditional Saudi hospitality and heritage through a pre
 
 ## 🚀 Key Features
 
+* **Progressive Web App (PWA)**: Full offline service worker caching (`sw.js`), standalone mobile/desktop install prompts, update alerts, and custom connection-loss landing page (`offline.html`).
+* **Enterprise Commerce Intelligence (v2.7.0)**: Smart recommendations shelves (complementary bought items), multi-value URL-synced search filtering chips, Saved for Later shelf, undo cart deletion prompts, checkout progress steppers, gift wrapping notes, and standardized focus-visible micro-interactions.
+* **Premium Customer Experience (v2.6.0)**: Drag-swipeable fullscreen product details image gallery, advanced search suggestions, matching query text highlighting, product comparison sheet, social sharing widgets, and interactive helpful reviews metrics.
 * **Bi-directional Localization (i18n)**: Out-of-the-box Arabic (RTL, font: *Tajawal*) and English (LTR, font: *Inter*) layout directions.
 * **Feature-Based Clean Architecture**: Separation of concerns based on distinct functional boundaries (Auth, Shop, Cart, Checkout, Profile).
 * **Robust State Management**: Zustand for global client-side UI configurations (Cart items, languages, theme, modal toggles) and TanStack Query (v5) for cache-first async server states (products, categories, orders, wishlist, addresses, notifications).
@@ -243,8 +246,9 @@ Language stores detect locale preferences and adjust standard page layouts (`dir
 Review our extended milestones in [ROADMAP.md](docs/ROADMAP.md).
 
 * **Version 1.0 (Completed)**: Core Foundation, Storefront UI components, Cart, Checkout flow, JWT Authentication, and Quality testing pipeline.
-* **Version 2.0 (Current)**: Customer Account Dashboard (Phases 5.1 - 5.4) - Overview Home, Profile Settings, Address Book, Orders tracking, notifications.
-* **Version 3.0**: Admin Management Console (Products CRUD, order lists, coupons, inventory, and role security).
+* **Version 2.0 (Completed)**: Customer Account Dashboard - Overview Home, Profile Settings, Address Book, Orders tracking, notifications.
+* **Version 2.5 (Completed - Stable 2.5.1B)**: UI Polish & Missing Pages - Framer motion hover fixes, React Router loop resolution, Contact Us, Offers, Best Sellers pages, and accessibility compliance.
+* **Version 3.0 (Upcoming)**: Admin Management Console (Products CRUD, order lists, coupons, inventory, and role security).
 * **Version 4.0**: Full Backend REST Integration (connecting live APIs and removing local mocks).
 * **Version 5.0**: Payment Gateway Bindings (Mada, Apple Pay, STC Pay, Visa, Mastercard).
 * **Version 6.0**: Production Launch setup (Docker, CI/CD pipelines, SSL, CDN, SEO, and optimization).

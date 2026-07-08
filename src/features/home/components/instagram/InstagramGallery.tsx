@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import SectionHeader from '../section-header/SectionHeader';
 import { Section } from '@/components/global/Section';
 import { Container } from '@/components/global/Container';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 interface InstagramPost {
   id: string;
@@ -97,11 +98,10 @@ export const InstagramGallery: React.FC = () => {
                 className="group relative block aspect-square rounded-2xl overflow-hidden border border-border/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label={altText}
               >
-                {/* Lazy Loaded Image */}
-                <img
+                <OptimizedImage
                   src={post.imageUrl}
                   alt={altText}
-                  loading="lazy"
+                  aspectRatioClassName="w-full h-full"
                   className="h-full w-full object-cover transition-transform duration-500 scale-100 group-hover:scale-105"
                 />
 

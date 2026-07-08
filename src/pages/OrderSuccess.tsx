@@ -15,6 +15,7 @@ import { useLanguageStore } from '@/store/language.store';
 import { formatCurrency } from '@/utils/currency';
 import Button from '@/components/ui/Button';
 import ROUTES from '@/constants/routes';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 export const OrderSuccess: React.FC = () => {
   const { t } = useTranslation();
@@ -172,9 +173,10 @@ export const OrderSuccess: React.FC = () => {
             <div key={item.id} className="flex items-center justify-between gap-4 text-xs">
               <div className="flex items-center gap-3">
                 <div className="h-12 w-12 rounded-lg bg-muted/20 border border-border/20 overflow-hidden shrink-0 select-none">
-                  <img
+                  <OptimizedImage
                     src={item.imageUrl}
                     alt={isRtl ? item.productNameAr : item.productNameEn}
+                    aspectRatioClassName="w-full h-full"
                     className="h-full w-full object-cover"
                   />
                 </div>

@@ -19,6 +19,8 @@ export const ROUTES = {
   SETTINGS: '/settings',
   ABOUT: '/about',
   CONTACT: '/contact',
+  BEST_SELLERS: '/best-sellers',
+  OFFERS: '/offers',
 } as const;
 
 export default ROUTES;

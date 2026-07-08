@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Mic } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { twMerge } from 'tailwind-merge';
 
@@ -9,6 +9,11 @@ export interface CommandProps {
   placeholder?: string;
   className?: string;
   children?: React.ReactNode;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onVoiceClick?: () => void;
+  isListening?: boolean;
 }
 
 export const Command: React.FC<CommandProps> = ({
@@ -17,6 +22,11 @@ export const Command: React.FC<CommandProps> = ({
   placeholder = 'البحث عن المنتجات، القهوة، المكسرات...',
   className,
   children,
+  value,
+  onChange,
+  onKeyDown,
+  onVoiceClick,
+  isListening = false,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -32,11 +42,44 @@ export const Command: React.FC<CommandProps> = ({
     };
   }, [isOpen]);
 
-  // Handle escape close
+  // Handle keydown actions (Escape for closing, Tab for focus trapping)
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) onClose();
+      if (e.key === 'Escape') {
+        onClose();
+      } else if (e.key === 'Tab') {
+        const dialog = inputRef.current?.closest('[role="dialog"]');
+        if (!dialog) return;
+
+        const focusable = Array.from(
+          dialog.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
+        ).filter((el) => {
+          return !el.hasAttribute('disabled') && el.offsetParent !== null;
+        });
+
+        if (focusable.length === 0) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            last.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === last) {
+            first.focus();
+            e.preventDefault();
+          }
+        }
+      }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
@@ -69,14 +112,31 @@ export const Command: React.FC<CommandProps> = ({
             )}
           >
             {/* Search Input */}
-            <div className="flex items-center border-b px-3">
+            <div className="flex items-center border-b px-3 justify-between">
               <Search className="h-4 w-4 shrink-0 opacity-50" />
               <input
                 ref={inputRef}
                 type="text"
                 placeholder={placeholder}
-                className="flex h-12 w-full rounded-md bg-transparent py-3 px-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 text-right font-tajawal"
+                value={value}
+                onChange={onChange}
+                onKeyDown={onKeyDown}
+                className="flex h-12 w-full bg-transparent py-3 px-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 text-right font-tajawal"
               />
+              {onVoiceClick && (
+                <button
+                  type="button"
+                  onClick={onVoiceClick}
+                  className={`p-1.5 rounded-full hover:bg-muted transition-colors cursor-pointer shrink-0 ${
+                    isListening
+                      ? 'text-red-500 animate-pulse bg-red-500/10'
+                      : 'text-muted-foreground hover:text-primary'
+                  }`}
+                  aria-label="البحث الصوتي"
+                >
+                  <Mic className="h-4 w-4" />
+                </button>
+              )}
             </div>
 
             {/* List Items wrapper */}

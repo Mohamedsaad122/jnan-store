@@ -252,6 +252,10 @@ export const authService = {
     lastName: string;
     phone?: string;
     avatarUrl?: string;
+    country?: string;
+    city?: string;
+    address?: string;
+    dob?: string;
   }): Promise<User> {
     if (!featureFlags.enableMockApi) {
       return request.put<User>('/auth/profile', profileData);

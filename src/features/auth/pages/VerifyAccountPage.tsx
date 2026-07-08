@@ -10,6 +10,8 @@ import { authService } from '@/services/auth/auth.service';
 import OTPInput from '../components/OTPInput';
 import Button from '@/components/ui/Button';
 import ROUTES from '@/constants/routes';
+import { featureFlags } from '@/config/featureFlags';
+import { showDemoOtpToast } from '../utils/demoHelper';
 
 export const VerifyAccountPage: React.FC = () => {
   const navigate = useNavigate();
@@ -80,7 +82,11 @@ export const VerifyAccountPage: React.FC = () => {
         phone: '0501234567',
         termsAccepted: true,
       });
-      toast.success('تم إرسال رمز تحقق جديد إلى بريدك الإلكتروني (الرمز: 123456)');
+      if (featureFlags.enableMockApi) {
+        showDemoOtpToast();
+      } else {
+        toast.success('تم إرسال رمز تحقق جديد إلى بريدك الإلكتروني');
+      }
       setCountdown(60);
       setCanResend(false);
     } catch (err: unknown) {

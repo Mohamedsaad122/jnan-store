@@ -9,10 +9,13 @@ import { useCartStore } from '@/store/cart.store';
 export const useCart = () => {
   const {
     items,
+    savedForLater,
     isOpen,
     appliedCoupon,
     totalAmount,
     totalQuantity,
+    giftWrap,
+    giftMessage,
     setOpen,
     addItem,
     removeItem,
@@ -20,12 +23,17 @@ export const useCart = () => {
     clearCart,
     applyCoupon,
     removeCoupon,
+    moveToSaved,
+    moveToCart,
+    removeFromSaved,
+    setGiftOptions,
     getSubtotal,
     getTotal,
     getItemsCount,
     getDiscountAmount,
     getShippingFee,
     getTaxAmount,
+    getGiftWrapFee,
     reset,
   } = useCartStore();
 
@@ -35,10 +43,13 @@ export const useCart = () => {
 
   return {
     items,
+    savedForLater,
     isOpen,
     appliedCoupon,
     totalAmount,
     totalQuantity,
+    giftWrap,
+    giftMessage,
     setOpen,
     addItem,
     addToCart,
@@ -48,12 +59,17 @@ export const useCart = () => {
     clearCart,
     applyCoupon,
     removeCoupon,
+    moveToSaved,
+    moveToCart,
+    removeFromSaved,
+    setGiftOptions,
     getSubtotal,
     getTotal,
     getItemsCount,
     getDiscountAmount,
     getShippingFee,
     getTaxAmount,
+    getGiftWrapFee,
     reset,
   };
 };

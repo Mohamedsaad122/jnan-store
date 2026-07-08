@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Star, Heart, ShoppingBag } from 'lucide-react';
+import { Star, Heart, ShoppingBag, GitCompare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-hot-toast';
 import { Product } from '@/types/domain';
@@ -9,6 +9,8 @@ import { useWishlist } from '@/hooks/useWishlist';
 import { formatCurrency } from '@/utils/currency';
 import { useLanguageStore } from '@/store/language.store';
 import { twMerge } from 'tailwind-merge';
+import { useCompareStore } from '@/store/compare.store';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 export interface ProductCardProps {
   product: Product;
@@ -73,6 +75,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
+  // Handle Product Compare toggle action
+  const { addToCompare, removeFromCompare, isInCompare } = useCompareStore();
+  const isCompared = isInCompare(product.id);
+
+  const handleCompareToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (isCompared) {
+      removeFromCompare(product.id);
+      toast.success(t('compare.removed', { defaultValue: 'تمت الإزالة من المقارنة' }));
+    } else {
+      const added = addToCompare(product.id);
+      if (added) {
+        toast.success(t('compare.added', { defaultValue: 'تمت الإضافة للمقارنة' }));
+      } else {
+        toast.error(t('compare.limit_error', { defaultValue: 'يمكنك مقارنة ٤ منتجات كحد أقصى' }));
+      }
+    }
+  };
+
   const formatNumber = (num: number) => {
     return isRtl
       ? new Intl.NumberFormat('ar-SA').format(num)
@@ -99,10 +122,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           layout === 'list' ? 'aspect-square w-full sm:w-44 md:w-48' : 'aspect-square w-full'
         )}
       >
-        <img
+        <OptimizedImage
           src={product.images[0]?.url}
           alt={name}
-          loading="lazy"
+          aspectRatioClassName="w-full h-full"
           className="h-full w-full object-cover transition-transform duration-500 ease-out scale-100 group-hover:scale-105"
         />
 
@@ -128,22 +151,44 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         {/* Floating Wishlist Button */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.1, backgroundColor: 'var(--card)' }}
+          whileTap={{ scale: 0.9 }}
           onClick={handleWishlistToggle}
-          className="absolute top-2.5 end-2.5 flex h-8.5 w-8.5 items-center justify-center rounded-full bg-background/80 hover:bg-background border border-border/40 shadow-sm transition-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 z-10"
+          className="absolute top-2.5 end-2.5 flex h-8.5 w-8.5 items-center justify-center rounded-full bg-background/80 border border-border/40 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 z-10 cursor-pointer"
           aria-label={
             isWishlisted
               ? t('wishlist.remove_label', { defaultValue: 'إزالة من المفضلة' })
               : t('wishlist.add_label', { defaultValue: 'إضافة للمفضلة' })
           }
         >
-          <Heart
-            className={`h-4.5 w-4.5 transition-transform duration-300 ${
-              isWishlisted
-                ? 'fill-destructive text-destructive scale-110'
-                : 'text-muted-foreground hover:scale-105'
-            }`}
-          />
+          <motion.div
+            animate={{ scale: isWishlisted ? [1, 1.3, 1] : 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Heart
+              className={twMerge(
+                'h-4.5 w-4.5 transition-colors duration-300',
+                isWishlisted
+                  ? 'fill-red-500 text-red-500'
+                  : 'text-muted-foreground hover:text-red-500'
+              )}
+            />
+          </motion.div>
+        </motion.button>
+
+        {/* Floating Compare Button */}
+        <button
+          onClick={handleCompareToggle}
+          className={twMerge(
+            'absolute top-12.5 end-2.5 flex h-8.5 w-8.5 items-center justify-center rounded-full bg-background/80 hover:bg-background border shadow-sm transition-theme focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 z-10 cursor-pointer',
+            isCompared
+              ? 'border-gold text-gold bg-gold/5'
+              : 'border-border/40 text-muted-foreground hover:border-gold/30 hover:text-gold'
+          )}
+          aria-label={isCompared ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
+        >
+          <GitCompare className="h-4.5 w-4.5" />
         </button>
 
         {/* Floating Quick Action Overlay (Tablet/Desktop Viewport) - Only for Grid layout */}
@@ -256,4 +301,4 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   );
 };
 
-export default ProductCard;
+export default React.memo(ProductCard);

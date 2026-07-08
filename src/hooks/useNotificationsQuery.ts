@@ -102,3 +102,32 @@ export const useDeleteNotification = () => {
     },
   });
 };
+
+export const useDeleteAllNotifications = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => dashboardNotificationService.deleteAllNotifications(),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.notifications });
+      const previousNotifications =
+        queryClient.getQueryData<NotificationItem[]>(queryKeys.notifications) || [];
+
+      queryClient.setQueryData(queryKeys.notifications, []);
+
+      return { previousNotifications };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousNotifications) {
+        queryClient.setQueryData(queryKeys.notifications, context.previousNotifications);
+      }
+      toast.error('فشل حذف كافة التنبيهات');
+    },
+    onSuccess: () => {
+      toast.success('تم حذف جميع التنبيهات بنجاح');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications });
+    },
+  });
+};

@@ -25,6 +25,8 @@ const Profile = lazy(() => import('@/pages/Profile'));
 const Settings = lazy(() => import('@/pages/Settings'));
 const About = lazy(() => import('@/pages/About'));
 const Contact = lazy(() => import('@/pages/Contact'));
+const Offers = lazy(() => import('@/pages/Offers'));
+const BestSellers = lazy(() => import('@/pages/BestSellers'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 // Lazy load dashboard components
@@ -48,6 +50,8 @@ const AppRoutes: React.FC = () => {
           <Route index element={<Home />} />
           <Route path="shop" element={<Shop />} />
           <Route path="shop/:id" element={<ProductDetails />} />
+          <Route path="best-sellers" element={<BestSellers />} />
+          <Route path="offers" element={<Offers />} />
           <Route path="categories" element={<Categories />} />
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="cart" element={<Cart />} />

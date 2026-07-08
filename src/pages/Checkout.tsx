@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, ChevronRight, ChevronLeft } from 'lucide-react';
+import {
+  ShieldCheck,
+  ChevronRight,
+  ChevronLeft,
+  MapPin,
+  Truck,
+  CreditCard,
+  CheckCircle2,
+} from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useAddresses } from '@/hooks/useAddressesQuery';
 import { useCreateOrder } from '@/hooks/useCheckoutMutation';
@@ -16,6 +24,7 @@ import Button from '@/components/ui/Button';
 import Logo from '@/components/global/Logo';
 import { toast } from 'react-hot-toast';
 import ROUTES from '@/constants/routes';
+import analyticsService from '@/services/analytics.service';
 
 export const Checkout: React.FC = () => {
   const { t } = useTranslation();
@@ -23,11 +32,12 @@ export const Checkout: React.FC = () => {
   const { language } = useLanguageStore();
   const isRtl = language === 'ar';
 
-  const { items, getSubtotal, getDiscountAmount, appliedCoupon } = useCart();
+  const { items, getSubtotal, getDiscountAmount, appliedCoupon, giftWrap, getGiftWrapFee } =
+    useCart();
   const { data: addresses = [] } = useAddresses();
   const createOrderMutation = useCreateOrder();
 
-  // 1. Checkout Form States
+  // Checkout Form States
   const [shippingAddress, setShippingAddress] = useState<Address | null>(null);
   const [billingAddress, setBillingAddress] = useState<Address | null>(null);
   const [sameAsShipping, setSameAsShipping] = useState(true);
@@ -51,22 +61,48 @@ export const Checkout: React.FC = () => {
     if (items.length === 0 && !isSubmitting) {
       toast.error(t('cart.empty_title', { defaultValue: 'سلتك فارغة حالياً' }));
       navigate(ROUTES.CART);
+    } else {
+      analyticsService.trackCheckout(1, 'Checkout Initiated');
     }
   }, [items, navigate, isSubmitting, t]);
 
   const subtotal = getSubtotal();
   const discount = getDiscountAmount();
-
-  // Shipping Fee based on method selection
   const shippingFee = shippingMethod ? shippingMethod.cost : 15;
+  const giftFee = giftWrap ? getGiftWrapFee() : 0;
 
   // Calculate dynamic totals using orders service helper
   const totals = ordersService.calculateTotals(subtotal, discount, shippingFee);
+  const finalTotalAmount = totals.totalAmount + giftFee;
+
+  // Derive active checkout steps for the progress visual stepper
+  const steps = [
+    {
+      key: 'address',
+      labelAr: 'العنوان',
+      labelEn: 'Address',
+      icon: MapPin,
+      done: !!shippingAddress,
+    },
+    {
+      key: 'shipping',
+      labelAr: 'التوصيل',
+      labelEn: 'Shipping',
+      icon: Truck,
+      done: !!shippingMethod,
+    },
+    {
+      key: 'payment',
+      labelAr: 'الدفع',
+      labelEn: 'Payment',
+      icon: CreditCard,
+      done: !!paymentMethod,
+    },
+  ];
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Perform validation
     const activeBilling = sameAsShipping ? shippingAddress : billingAddress;
     const checkoutValidation = ordersService.validateCheckout({
       shippingAddress: shippingAddress || undefined,
@@ -88,7 +124,6 @@ export const Checkout: React.FC = () => {
     }
 
     try {
-      // Map cart item state to order items
       const orderItems: OrderItem[] = items.map((item, idx) => ({
         id: `oi-${idx}-${Date.now()}`,
         productId: item.productId,
@@ -98,6 +133,12 @@ export const Checkout: React.FC = () => {
         quantity: item.quantity,
         imageUrl: item.imageUrl,
       }));
+
+      analyticsService.trackPurchaseIntent({
+        subtotal,
+        totalAmount: finalTotalAmount,
+        couponCode: appliedCoupon?.code,
+      });
 
       await createOrderMutation.mutateAsync({
         items: orderItems,
@@ -109,11 +150,11 @@ export const Checkout: React.FC = () => {
         discountAmount: totals.discountAmount,
         shippingFee: totals.shippingFee,
         taxAmount: totals.taxAmount,
-        totalAmount: totals.totalAmount,
+        totalAmount: finalTotalAmount,
         couponCode: appliedCoupon?.code,
       });
 
-      // Navigate to order confirmation
+      // Clear local state cart or trigger success redirects
       navigate(ROUTES.ORDER_SUCCESS || '/checkout/success');
     } catch {
       // Handled in mutation toasts
@@ -147,9 +188,47 @@ export const Checkout: React.FC = () => {
 
       {/* Main Form content */}
       <main className="container mx-auto px-4 md:px-6 py-8 flex-grow">
-        <h1 className="text-xl md:text-2xl font-black text-primary mb-8 select-none">
-          {t('checkout.title', { defaultValue: 'إتمام الطلب' })}
-        </h1>
+        {/* Checkout Header and Progress Stepper */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 select-none">
+          <h1 className="text-xl md:text-2xl font-black text-primary">
+            {t('checkout.title', { defaultValue: 'إتمام الطلب' })}
+          </h1>
+
+          {/* Stepper progress */}
+          <div
+            className="flex items-center gap-2.5 bg-muted/10 border border-border/40 p-2.5 rounded-xl text-xs"
+            dir={isRtl ? 'rtl' : 'ltr'}
+          >
+            {steps.map((step, idx) => {
+              const StepIcon = step.icon;
+              return (
+                <React.Fragment key={step.key}>
+                  <div className="flex items-center gap-1.5">
+                    <div
+                      className={`h-6 w-6 rounded-full flex items-center justify-center border ${
+                        step.done
+                          ? 'bg-emerald-500 border-emerald-500 text-card'
+                          : 'bg-transparent border-border text-muted-foreground'
+                      }`}
+                    >
+                      {step.done ? (
+                        <CheckCircle2 className="h-3.5 w-3.5 text-card" />
+                      ) : (
+                        <StepIcon className="h-3 w-3" />
+                      )}
+                    </div>
+                    <span
+                      className={`font-bold ${step.done ? 'text-emerald-600' : 'text-muted-foreground'}`}
+                    >
+                      {isRtl ? step.labelAr : step.labelEn}
+                    </span>
+                  </div>
+                  {idx < steps.length - 1 && <div className="h-0.5 w-6 bg-border/60" />}
+                </React.Fragment>
+              );
+            })}
+          </div>
+        </div>
 
         <form
           onSubmit={handlePlaceOrder}
@@ -193,7 +272,7 @@ export const Checkout: React.FC = () => {
               </div>
 
               {!sameAsShipping && (
-                <div className="mt-4 pt-4 border-t border-border/20">
+                <div className="mt-4 pt-4 border-t border-border/20 animate-fade-in">
                   <AddressSelector
                     selectedId={billingAddress?.id}
                     onSelect={(addr) => setBillingAddress(addr)}
@@ -209,7 +288,10 @@ export const Checkout: React.FC = () => {
             <section className="bg-card/30 border border-border/40 p-5 rounded-2xl">
               <ShippingMethodCard
                 selectedId={shippingMethod?.id}
-                onSelect={(method) => setShippingMethod(method)}
+                onSelect={(method) => {
+                  setShippingMethod(method);
+                  analyticsService.trackCheckout(2, 'Shipping Speed Chosen');
+                }}
               />
             </section>
 
@@ -217,7 +299,10 @@ export const Checkout: React.FC = () => {
             <section className="bg-card/30 border border-border/40 p-5 rounded-2xl">
               <PaymentMethodCard
                 selectedId={paymentMethod || undefined}
-                onSelect={(id) => setPaymentMethod(id)}
+                onSelect={(id) => {
+                  setPaymentMethod(id);
+                  analyticsService.trackCheckout(3, 'Payment Option Picked');
+                }}
               />
             </section>
           </div>
@@ -270,6 +355,15 @@ export const Checkout: React.FC = () => {
                   </div>
                 )}
 
+                {giftWrap && giftFee > 0 && (
+                  <div className="flex justify-between items-center text-gold font-semibold">
+                    <span className="select-none">
+                      {isRtl ? 'رسوم التغليف كهدية' : 'Gift Wrapping Fee'}
+                    </span>
+                    <span className="font-sans">+ {formatCurrency(giftFee, language)}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center">
                   <span className="select-none">
                     {t('cart.shipping', { defaultValue: 'رسوم الشحن والتوصيل' })}
@@ -299,10 +393,27 @@ export const Checkout: React.FC = () => {
                     {t('cart.total', { defaultValue: 'المجموع الإجمالي' })}
                   </span>
                   <span className="font-sans text-gold text-base">
-                    {formatCurrency(totals.totalAmount, language)}
+                    {formatCurrency(finalTotalAmount, language)}
                   </span>
                 </div>
               </div>
+
+              {/* Delivery Preview indicator */}
+              {shippingMethod && (
+                <div className="mt-4 p-3 bg-muted/15 border border-border/30 rounded-xl select-none text-[10px] text-muted-foreground flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-gold shrink-0" />
+                  <div className="flex flex-col text-right">
+                    <span className="font-black text-primary">
+                      {isRtl ? 'سرعة الشحن المحددة' : 'Selected delivery speed'}
+                    </span>
+                    <span className="mt-0.5">
+                      {isRtl
+                        ? shippingMethod.estimatedDeliveryAr
+                        : shippingMethod.estimatedDeliveryEn}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Guarantee badge */}
               <div className="flex items-center gap-1.5 justify-center mt-6 text-[10px] text-muted-foreground select-none">
@@ -317,7 +428,7 @@ export const Checkout: React.FC = () => {
                 type="submit"
                 disabled={isSubmitting}
                 variant="primary"
-                className="w-full flex items-center justify-center gap-2 h-12 bg-primary text-primary-foreground hover:bg-primary/95 text-xs sm:text-sm font-bold rounded-xl mt-4 shadow-md border border-gold/10 disabled:opacity-50 select-none"
+                className="w-full flex items-center justify-center gap-2 h-12 bg-primary text-primary-foreground hover:bg-primary/95 text-xs sm:text-sm font-bold rounded-xl mt-4 shadow-md border border-gold/10 disabled:opacity-50 select-none cursor-pointer"
               >
                 <span>
                   {isSubmitting

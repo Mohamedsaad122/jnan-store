@@ -54,16 +54,39 @@ This document outlines the development roadmap of Jnan Store, organizing our spr
 
 ---
 
-## 📦 Version 2.5 — Backend Integration Foundation (Completed)
+## 📦 Version 2.5 — Platform Stability & UI Polish (Completed)
 
-### 🚀 Phase 2.5.1 — API Infrastructure
-- Structured API domains, mapped DTO payloads to clean camelCase entities, built Axios clients with automatic token refresh, and implemented retry policies.
+### 🚀 Phase 2.5.1 — API Integration, Stability & Missing Pages
+- Synchronized category filtering and shop queries to eliminate search rendering loop conditions.
+- Completed customer-facing missing public pages (Contact Us, Offers, Best Sellers pages).
+- Lazy-loaded routing and navigation links integration across header/footer/mobile drawers.
+- Achieved 100% passing test coverage (116 unit and integration test specs).
 
-### 🚀 Phase 2.5.2 — API Integration & Data Synchronization
-- Standardized query key factory namespaces under a centralized key registry.
-- Migrated all dashboard state lists (Addresses, Wishlist, Notifications, Sessions) to React Query hooks.
-- Refactored Zustand stores to delete redundant server state lists, maintaining only UI triggers.
-- Achieved 116 passing unit and integration tests.
+### 🚀 Phase 2.5.2 — Enterprise UX, Performance & SEO Sprint
+- Created reusable `ErrorState` and `EmptyState` components to unify empty/error layout boundaries.
+- Polished dark mode, verified touch targets (>= 48px), and added focus-visible outlines for WCAG AA compliance.
+- Injected dynamic SEO `Helmet` tags (Title, Description, Canonical, OG tags) on all storefront routes.
+- Memoized layout containers (such as `ShopToolbar` via `React.memo`) to eliminate redundant rerenders.
+- Passed all Quality Gates (lint, typecheck, tests, production build) with zero warnings or errors.
+
+---
+
+## 📦 Version 2.6.0 — Premium Storefront Experience Sprint (Completed)
+- **Progressive Web App (PWA)**: Added service worker precaching shell, offline fallbacks, app manifest properties, update popups, and install prompts.
+- **Product Gallery Upgrade**: Added Framer Motion swipes, zoom-in scaling, fullscreen slides modal, and keyboard controls.
+- **Advanced Search Experience**: Added instant keyword highlighting, query logs, matches overlays, and list index arrow key navigation.
+- **Recently Viewed Horizontal shelf**: Converted vertical grids to a responsive horizontal swipe carousel with a clear log action.
+- **Product Comparisons**: Managed compare Zustand states, CompareBar sticky layout tray, comparative details table, and Add to Cart shortcut triggers.
+- **Reviews Polishing & Social Sharing**: Added verified icons, review count rating bars filters, helpful button click logs, and sharing modal options.
+
+---
+
+## 📦 Version 2.7.0 — Enterprise Commerce Intelligence Sprint (Completed)
+- **Smart Recommendation Engine**: Built `useRecommendations` client-side query hooks selecting complementary categories (e.g. coffee to dates), trending, and frequently bought together items. Integrated swipeable carousels inside `ProductDetails.tsx`.
+- **Multi-Value Enterprise Filtering**: Extended `useProductFilters.ts` to support multi-value query parameter serialization (`categories`, `brands`, `colors`, `sizes`). Mounted sidebar checkbox lists and individual active filter chips grid.
+- **Premium Cart Experience**: Upgraded `useCartStore` with `savedForLater` state array and corresponding movement hooks (`moveToSaved`, `moveToCart`, `removeFromSaved`) rendered as a secondary grid under the active cart list, gift wrapping message configurations, undo deletion banners, and popular coupons suggester chips.
+- **Checkout Polish**: Stepper layout progress indicators, delivery speed previews, and gift wrapping fees totals breakdown.
+- **Standardized Micro-Interactions**: Configured smooth easing scales (98%) on pressed states, Cubic Bezier transitions (250ms), and custom focus indicator ring outlines for WCAG AA compliance.
 
 ---
 

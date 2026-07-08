@@ -18,6 +18,12 @@ export interface User {
   permissions: Permission[];
   avatarUrl?: string;
   createdAt: string;
+  country?: string;
+  city?: string;
+  address?: string;
+  dob?: string;
+  isEmailVerified?: boolean;
+  accountStatus?: 'active' | 'suspended' | 'pending';
 }
 
 export interface AuthTokens {

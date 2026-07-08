@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Category } from '@/types/domain';
 import { useLanguageStore } from '@/store/language.store';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 export interface CategoryCardProps {
   category: Category;
@@ -34,10 +35,10 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ category, productCou
       {/* Background Image Wrapper */}
       <div className="absolute inset-0 z-0">
         {category.imageUrl ? (
-          <img
+          <OptimizedImage
             src={category.imageUrl}
             alt={name}
-            loading="lazy"
+            aspectRatioClassName="w-full h-full"
             className="w-full h-full object-cover transition-transform duration-700 ease-out scale-100 group-hover:scale-110"
           />
         ) : (
@@ -50,10 +51,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ category, productCou
 
       {/* Card Content Overlay */}
       <div className="absolute inset-0 p-5 flex flex-col justify-end items-start text-right z-10">
-        <motion.div
-          layout
-          className="w-full space-y-1 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 ease-out"
-        >
+        <motion.div className="w-full space-y-1 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 ease-out">
           {/* Category Name */}
           <h3 className="text-base sm:text-lg font-bold text-primary dark:text-gold group-hover:text-gold dark:group-hover:text-foreground font-tajawal transition-colors">
             {name}

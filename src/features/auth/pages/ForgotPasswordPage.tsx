@@ -10,6 +10,8 @@ import { authService } from '@/services/auth/auth.service';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import ROUTES from '@/constants/routes';
+import { featureFlags } from '@/config/featureFlags';
+import { showDemoOtpToast } from '../utils/demoHelper';
 
 export const ForgotPasswordPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +36,11 @@ export const ForgotPasswordPage: React.FC = () => {
         email: data.email,
       });
 
-      toast.success(response.message || 'تم إرسال رمز التحقق!');
+      if (featureFlags.enableMockApi) {
+        showDemoOtpToast();
+      } else {
+        toast.success(response.message || 'تم إرسال رمز التحقق!');
+      }
 
       // Redirect to password reset code form
       navigate(

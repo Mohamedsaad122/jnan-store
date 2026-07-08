@@ -5,6 +5,7 @@ import { useLanguageStore } from '@/store/language.store';
 import DashboardSidebar from '../components/DashboardSidebar';
 import DashboardHeader from '../components/DashboardHeader';
 import DashboardMobileMenu from '../components/DashboardMobileMenu';
+import { Helmet } from 'react-helmet-async';
 
 export const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -38,6 +39,9 @@ export const DashboardLayout: React.FC = () => {
       dir={isRtl ? 'rtl' : 'ltr'}
       role="application"
     >
+      <Helmet>
+        <title>{isRtl ? 'لوحة التحكم | متجر جنان' : 'Dashboard | Jnan Store'}</title>
+      </Helmet>
       <div className="flex flex-1 flex-row">
         {/* Reusable Collapsible Desktop Sidebar */}
         <DashboardSidebar

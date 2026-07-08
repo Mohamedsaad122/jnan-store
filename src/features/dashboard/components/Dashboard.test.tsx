@@ -29,8 +29,8 @@ describe('Dashboard Component Suites', () => {
   describe('OrderTimeline', () => {
     it('renders standard steps of the timeline', () => {
       render(<OrderTimeline status="processing" />);
-      expect(screen.getByText('orders.timeline.placed')).toBeInTheDocument();
       expect(screen.getByText('orders.timeline.preparing')).toBeInTheDocument();
+      expect(screen.getByText('orders.timeline.shipped')).toBeInTheDocument();
     });
   });
 

@@ -4,6 +4,7 @@ import Header from '@/components/global/Header';
 import Footer from '@/components/global/Footer';
 import MobileNavigation from '@/components/global/MobileNavigation';
 import MiniCartDrawer from '@/features/cart/components/MiniCartDrawer';
+import CompareBar from '@/components/global/CompareBar';
 
 export const DefaultLayout: React.FC = () => {
   return (
@@ -21,6 +22,9 @@ export const DefaultLayout: React.FC = () => {
 
       {/* Fixed Bottom Nav for Mobile viewports */}
       <MobileNavigation />
+
+      {/* Sticky Product Comparison Tray */}
+      <CompareBar />
 
       {/* Cart Slider Drawer */}
       <MiniCartDrawer />

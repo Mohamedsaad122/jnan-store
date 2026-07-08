@@ -31,6 +31,7 @@ export const Header: React.FC = () => {
   // Scroll visibility management
   const [scrollY, setScrollY] = useState(0);
   const [visible, setVisible] = useState(true);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -38,6 +39,13 @@ export const Header: React.FC = () => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       setScrollY(currentScrollY);
+
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        setScrollProgress((currentScrollY / totalHeight) * 100);
+      } else {
+        setScrollProgress(0);
+      }
 
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setVisible(false); // scrolling down
@@ -63,6 +71,11 @@ export const Header: React.FC = () => {
             : 'bg-background'
         }`}
       >
+        {/* Scroll Progress Bar */}
+        <div
+          className="h-[3px] bg-gold absolute bottom-0 start-0 z-50 transition-all duration-75"
+          style={{ width: `${scrollProgress}%` }}
+        />
         {/* Scrolling Announcement Bar */}
         <AnnouncementBar />
 

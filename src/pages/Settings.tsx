@@ -1,11 +1,8 @@
 import React from 'react';
+import { Navigate } from 'react-router-dom';
 
 const Settings: React.FC = () => {
-  return (
-    <div className="container py-8">
-      <h1 className="text-3xl font-bold">Settings Page</h1>
-    </div>
-  );
+  return <Navigate to="/dashboard/settings" replace />;
 };
 
 export default Settings;

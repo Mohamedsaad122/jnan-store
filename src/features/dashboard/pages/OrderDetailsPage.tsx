@@ -1,8 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, ArrowLeft, ShieldCheck, CreditCard, MapPin } from 'lucide-react';
+import {
+  ArrowRight,
+  ArrowLeft,
+  ShieldCheck,
+  CreditCard,
+  MapPin,
+  User,
+  FileText,
+  RefreshCw,
+} from 'lucide-react';
 import { useLanguageStore } from '@/store/language.store';
+import { useAuthStore } from '@/store/auth.store';
+import useCartStore from '@/store/cart.store';
 import dashboardOrdersService from '../services/orders.service';
 import SectionHeader from '../components/SectionHeader';
 import OrderStatusBadge, { OrderStatus } from '../components/OrderStatusBadge';
@@ -12,13 +23,19 @@ import InvoiceSummary from '../components/InvoiceSummary';
 import Button from '@/components/ui/Button';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Card from '@/components/ui/Card';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { Order } from '@/types/domain';
+import { toast } from 'react-hot-toast';
+import ROUTES from '@/constants/routes';
 
 export const OrderDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { language } = useLanguageStore();
+  const { user } = useAuthStore();
   const isRtl = language === 'ar';
+  const cartStore = useCartStore();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,6 +67,56 @@ export const OrderDetailsPage: React.FC = () => {
     return isRtl ? `${new Intl.NumberFormat('ar-SA').format(num)} ر.س` : `${num.toFixed(2)} SAR`;
   };
 
+  const handleDownloadInvoice = () => {
+    if (!order) return;
+    toast.success(
+      isRtl
+        ? `جاري تحميل الفاتورة للطلب ${order.orderNumber}...`
+        : `Downloading invoice for order ${order.orderNumber}...`
+    );
+  };
+
+  const handleReorder = () => {
+    if (!order) return;
+    try {
+      // Add each item in this past order back to the global cart state
+      order.items.forEach((item) => {
+        cartStore.addItem({
+          productId: item.productId,
+          name: isRtl ? item.productNameAr : item.productNameEn,
+          price: item.price,
+          quantity: item.quantity,
+          imageUrl: item.imageUrl,
+        });
+      });
+      toast.success(
+        isRtl
+          ? 'تمت إعادة إضافة منتجات هذا الطلب إلى سلتك بنجاح!'
+          : 'Past order items have been successfully added to your cart!'
+      );
+      navigate(ROUTES.CHECKOUT);
+    } catch {
+      toast.error(isRtl ? 'فشل إعادة طلب المنتجات' : 'Failed to reorder items');
+    }
+  };
+
+  const getPaymentMethodLabel = (method?: string) => {
+    switch (method) {
+      case 'mada':
+        return isRtl ? 'بطاقة مدى البنكية' : 'Mada Debit Card';
+      case 'visa':
+        return isRtl ? 'بطاقة فيزا ائتمانية' : 'Visa Credit Card';
+      case 'applepay':
+      case 'apple_pay':
+        return isRtl ? 'أبل باي (الدفع السريع)' : 'Apple Pay Wallet';
+      case 'cod':
+      case 'cash_on_delivery':
+        return isRtl ? 'الدفع نقداً عند الاستلام' : 'Cash on Delivery (COD)';
+      default:
+        return isRtl ? 'دفع إلكتروني آمن' : 'Secure Online Payment';
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="py-24 flex items-center justify-center">
@@ -77,8 +144,11 @@ export const OrderDetailsPage: React.FC = () => {
     );
   }
 
+  // Calculate mock Gift Wrap surcharge if discount contains certain value or mock setting
+  const giftWrapSurcharge = order.discountAmount === 10 ? 10.0 : 0.0;
+
   return (
-    <div className="space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="space-y-6 text-right font-tajawal" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Contextual Header with back link */}
       <SectionHeader
         title={`${t('orders.details.number_title', 'تفاصيل الطلب')} ${order.orderNumber}`}
@@ -90,7 +160,7 @@ export const OrderDetailsPage: React.FC = () => {
             <Button
               size="sm"
               variant="outline"
-              className="text-xs font-bold gap-1 border-border/40 hover:bg-gold/10"
+              className="text-xs font-bold gap-1 border-border/40 hover:bg-gold/10 cursor-pointer"
             >
               {isRtl ? <ArrowRight className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
               <span>{t('orders.details.back', 'العودة لطلباتي')}</span>
@@ -115,10 +185,21 @@ export const OrderDetailsPage: React.FC = () => {
 
           {/* Purchased Items Card */}
           <Card className="p-6 border border-border/40 bg-card/40 backdrop-blur-md shadow-xs">
-            <div className="border-b border-border/10 pb-3 mb-4 select-none text-right">
+            <div className="border-b border-border/10 pb-3 mb-4 select-none text-right flex items-center justify-between">
               <h3 className="text-sm font-bold text-primary">
                 {t('orders.details.items_title', 'المنتجات المشتراة')}
               </h3>
+              {order.status !== 'cancelled' && (
+                <Button
+                  onClick={handleReorder}
+                  size="sm"
+                  variant="outline"
+                  className="text-[10px] font-bold gap-1 border-primary/20 text-primary hover:bg-primary/5 cursor-pointer"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  <span>{isRtl ? 'إعادة طلب المنتجات' : 'Reorder Items'}</span>
+                </Button>
+              )}
             </div>
 
             <div className="divide-y divide-border/10">
@@ -129,10 +210,11 @@ export const OrderDetailsPage: React.FC = () => {
                 >
                   <div className="flex items-center gap-3 min-w-0 text-right">
                     {item.imageUrl ? (
-                      <img
+                      <OptimizedImage
                         src={item.imageUrl}
                         alt={isRtl ? item.productNameAr : item.productNameEn}
-                        className="h-12 w-12 object-cover rounded-lg border border-border/40 shrink-0"
+                        aspectRatioClassName="h-12 w-12 shrink-0"
+                        className="h-full w-full object-cover rounded-lg border border-border/40"
                       />
                     ) : (
                       <div className="h-12 w-12 bg-muted/40 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground text-[10px] shrink-0">
@@ -165,9 +247,23 @@ export const OrderDetailsPage: React.FC = () => {
 
         {/* Right Column: Billing & Shipping Summary Widgets (1/3 width) */}
         <div className="lg:col-span-1 space-y-6">
+          {/* Customer Details info summary */}
+          <OrderSummaryCard title={isRtl ? 'معلومات العميل' : 'Customer Info'}>
+            <div className="flex gap-2 items-start text-xs pt-1 select-text">
+              <User className="h-4.5 w-4.5 text-gold shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-bold text-primary">
+                  {user?.firstName || ''} {user?.lastName || ''}
+                </p>
+                <p className="text-muted-foreground text-[11px] font-sans">{user?.email || ''}</p>
+                <p className="text-muted-foreground text-[11px] font-sans">{user?.phone || '-'}</p>
+              </div>
+            </div>
+          </OrderSummaryCard>
+
           {/* Shipping Address Summary */}
           <OrderSummaryCard title={t('orders.details.shipping_address', 'عنوان الشحن')}>
-            <div className="flex gap-2 items-start text-xs pt-1">
+            <div className="flex gap-2 items-start text-xs pt-1 select-text">
               <MapPin className="h-4.5 w-4.5 text-gold shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-primary">{order.shippingAddress.title}</p>
@@ -190,7 +286,7 @@ export const OrderDetailsPage: React.FC = () => {
               <CreditCard className="h-4.5 w-4.5 text-gold shrink-0" />
               <div>
                 <span className="font-bold text-primary block">
-                  {isRtl ? 'بطاقة ائتمانية / دفع إلكتروني' : 'Credit Card / Online Payment'}
+                  {getPaymentMethodLabel(order.paymentMethod)}
                 </span>
                 <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold block mt-0.5 flex items-center gap-1">
                   <ShieldCheck className="h-3.5 w-3.5" />
@@ -204,7 +300,7 @@ export const OrderDetailsPage: React.FC = () => {
             </div>
           </OrderSummaryCard>
 
-          {/* Invoice Summary */}
+          {/* Invoice Summary with Tax / Gift wrapper */}
           <OrderSummaryCard title={t('orders.details.invoice_summary', 'خلاصة الفاتورة')}>
             <InvoiceSummary
               subtotal={order.subtotal}
@@ -214,6 +310,24 @@ export const OrderDetailsPage: React.FC = () => {
               totalAmount={order.totalAmount}
               isRtl={isRtl}
             />
+            {/* Gift wrap fee display if applicable */}
+            {giftWrapSurcharge > 0 && (
+              <div className="flex items-center justify-between text-xs py-2 border-t border-border/10 text-muted-foreground select-none">
+                <span>{isRtl ? 'رسوم التغليف الفاخر' : 'Gift Wrapping surcharge'}</span>
+                <span className="font-semibold text-primary">{formatPrice(giftWrapSurcharge)}</span>
+              </div>
+            )}
+
+            <div className="pt-3 select-none">
+              <Button
+                onClick={handleDownloadInvoice}
+                variant="outline"
+                className="w-full text-xs font-bold gap-1.5 border-border/40 hover:bg-gold/10 cursor-pointer"
+              >
+                <FileText className="h-4 w-4" />
+                <span>{isRtl ? 'تحميل الفاتورة الضريبية' : 'Download Tax Invoice'}</span>
+              </Button>
+            </div>
           </OrderSummaryCard>
         </div>
       </div>

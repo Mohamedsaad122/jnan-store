@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, Truck, CreditCard, Box, Gift, XCircle } from 'lucide-react';
+import { Check, Truck, Box, XCircle } from 'lucide-react';
 import { OrderStatus } from './OrderStatusBadge';
 
 interface OrderTimelineProps {
@@ -10,51 +10,39 @@ interface OrderTimelineProps {
 
 export const OrderTimeline: React.FC<OrderTimelineProps> = ({ status, updatedAt }) => {
   const { t } = useTranslation();
+  const isRtl = t('common.dir', { defaultValue: 'rtl' }) === 'rtl';
 
-  // Steps definitions
+  // Steps definitions: Preparing, Shipped, Out for delivery, Delivered
   const steps = [
     {
-      id: 'placed',
-      titleKey: 'orders.timeline.placed',
-      titleAr: 'تم تقديم الطلب',
-      titleEn: 'Order Placed',
-      descriptionAr: 'تم استلام طلبك بنجاح وجاري مراجعته.',
-      descriptionEn: 'Your order was successfully submitted.',
-      icon: <Gift className="h-4 w-4" />,
-    },
-    {
-      id: 'paid',
-      titleKey: 'orders.timeline.paid',
-      titleAr: 'تمت عملية الدفع',
-      titleEn: 'Payment Confirmed',
-      descriptionAr: 'تم تأكيد عملية الدفع وتوثيق الفاتورة.',
-      descriptionEn: 'Your payment has been successfully confirmed.',
-      icon: <CreditCard className="h-4 w-4" />,
-    },
-    {
       id: 'preparing',
-      titleKey: 'orders.timeline.preparing',
-      titleAr: 'قيد التجهيز',
-      titleEn: 'Preparing Order',
-      descriptionAr: 'نقوم بتعبئة وتغليف منتجاتك في مزارعنا.',
-      descriptionEn: 'We are packing and preparing your products.',
+      titleAr: 'قيد التجهيز في مزارعنا',
+      titleEn: 'Preparing in Farms',
+      descriptionAr: 'نقوم بتجهيز وتغليف طلبك بعناية فائقة.',
+      descriptionEn: 'We are preparing and packaging your premium goods.',
       icon: <Box className="h-4 w-4" />,
     },
     {
       id: 'shipped',
-      titleKey: 'orders.timeline.shipped',
-      titleAr: 'تم الشحن',
-      titleEn: 'Shipped',
-      descriptionAr: 'تم تسليم الشحنة لشركة التوصيل وجاري الشحن.',
-      descriptionEn: 'Your package is on its way to you.',
+      titleAr: 'تم الشحن مع الشريك الناقل',
+      titleEn: 'Shipped with Delivery Partner',
+      descriptionAr: 'تم تسليم الشحنة لشركة التوصيل وجاري نقلها.',
+      descriptionEn: 'Your package is on its way with the carrier.',
       icon: <Truck className="h-4 w-4" />,
     },
     {
+      id: 'out_for_delivery',
+      titleAr: 'خارج للتوصيل اليوم',
+      titleEn: 'Out for Delivery Today',
+      descriptionAr: 'الشحنة مع المندوب للتسليم اليوم.',
+      descriptionEn: 'The courier is delivering your order today.',
+      icon: <Truck className="h-4 w-4 animate-bounce" />,
+    },
+    {
       id: 'delivered',
-      titleKey: 'orders.timeline.delivered',
-      titleAr: 'تم التوصيل',
-      titleEn: 'Delivered',
-      descriptionAr: 'تم توصيل الشحنة بنجاح لعنوانك المسجل.',
+      titleAr: 'تم التوصيل بنجاح',
+      titleEn: 'Successfully Delivered',
+      descriptionAr: 'تم تسليم الطلب للعنوان المسجل بنجاح.',
       descriptionEn: 'Your order has been successfully delivered.',
       icon: <Check className="h-4 w-4" />,
     },
@@ -66,13 +54,13 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({ status, updatedAt 
       case 'cancelled':
         return -1;
       case 'pending':
-        return 1; // Placed & Paid completed in mock flow
+        return 0; // Preparing active
       case 'processing':
-        return 2; // Placed, Paid, Preparing completed
+        return 0; // Preparing completed, Shipped next
       case 'shipped':
-        return 3; // Placed, Paid, Preparing, Shipped completed
+        return 2; // Preparing, Shipped, Out for delivery active
       case 'delivered':
-        return 4; // All completed
+        return 3; // All completed
       default:
         return 0;
     }
@@ -100,7 +88,10 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({ status, updatedAt 
               {t('orders.timeline.cancelled_title', 'تم إلغاء هذا الطلب')}
             </p>
             <p className="text-[10px] opacity-90 mt-0.5">
-              {t('orders.timeline.cancelled_desc', 'تم إلغاء الطلب من قبلك أو لعدم توفر المخزون.')}
+              {t(
+                'orders.timeline.cancelled_desc',
+                'تم إلغاء الطلب بناء على رغبتك أو لعدم توفر المخزون.'
+              )}
             </p>
           </div>
         </div>
@@ -142,7 +133,7 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({ status, updatedAt 
                         isCompleted || isCurrent ? 'text-primary' : 'text-muted-foreground'
                       }`}
                     >
-                      {t(step.titleKey, step.titleAr)}
+                      {t(`orders.timeline.${step.id}`, isRtl ? step.titleAr : step.titleEn)}
                     </h4>
                     {isCurrent && updatedAt && (
                       <span className="text-[9px] text-gold font-bold">
@@ -150,8 +141,8 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({ status, updatedAt 
                       </span>
                     )}
                   </div>
-                  <p className="text-[10px] md:text-xs text-muted-foreground leading-relaxed">
-                    {t(`${step.titleKey}_desc`, step.descriptionAr)}
+                  <p className="text-[10px] sm:text-xs text-muted-foreground leading-relaxed">
+                    {isRtl ? step.descriptionAr : step.descriptionEn}
                   </p>
                 </div>
               </div>

@@ -4,7 +4,7 @@ import { Home, Grid, Search, ShoppingBag, User } from 'lucide-react';
 import { useCartStore } from '@/store/cart.store';
 import { useAuthStore } from '@/store/auth.store';
 import { ROUTES } from '@/constants/routes';
-import { Command } from '@/components/ui/Command';
+import AdvancedSearch from '@/components/global/AdvancedSearch';
 
 export const MobileNavigation: React.FC = () => {
   const totalQuantity = useCartStore((state) => state.totalQuantity);
@@ -81,11 +81,7 @@ export const MobileNavigation: React.FC = () => {
       </div>
 
       {/* Global Search command trigger on Mobile */}
-      <Command isOpen={isSearchOpen} onClose={() => setSearchOpen(false)}>
-        <div className="py-8 text-center text-sm text-muted-foreground font-tajawal">
-          ابحث عن أي قهوة سعودية، مكسرات، بهارات أو شوكولاتة...
-        </div>
-      </Command>
+      <AdvancedSearch isOpen={isSearchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 };

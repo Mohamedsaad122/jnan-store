@@ -129,3 +129,88 @@
 .swiper-pagination-bullet-active {
   @apply bg-gold !important;
 }
+
+/* Premium Standardized Micro Interactions */
+button,
+a,
+input,
+select,
+textarea {
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:active,
+a:active,
+.active-pressed {
+  transform: scale(0.98);
+}
+
+*:focus-visible {
+  outline: none !important;
+  ring: 2px solid var(--ring);
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 4px var(--ring);
+}
+
+/* Premium Card hover effects */
+.hover-card-premium {
+  transition:
+    transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 300ms ease;
+}
+.hover-card-premium:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(198, 161, 90, 0.15);
+}
+
+/* Smooth fade-in utility */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: fadeIn 350ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.animate-shimmer::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.08) 20%,
+    rgba(255, 255, 255, 0.15) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 2s infinite;
+  content: '';
+}
+.dark .animate-shimmer::after {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.04) 20%,
+    rgba(255, 255, 255, 0.08) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}

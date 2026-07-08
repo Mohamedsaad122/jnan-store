@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { productsService, GetProductsParams } from '@/services/products/products.service';
-import { Category, Product } from '@/types/domain';
+import { Category, Product, Brand } from '@/types/domain';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 
 /**
@@ -11,6 +11,7 @@ export const useProducts = (params: GetProductsParams) => {
     queryKey: queryKeys.products(params as Record<string, unknown>),
     queryFn: () => productsService.getProducts(params),
     staleTime: 1000 * 60 * 5, // 5 minutes caching
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -96,5 +97,16 @@ export const useProductsByIds = (ids: string[]) => {
     queryFn: () => productsService.getProductsByIds(ids),
     staleTime: 1000 * 60 * 5,
     enabled: ids.length > 0,
+  });
+};
+
+/**
+ * Custom TanStack Query Hook to fetch brands for filtering
+ */
+export const useBrands = () => {
+  return useQuery<Brand[]>({
+    queryKey: queryKeys.brands,
+    queryFn: () => productsService.getBrands(),
+    staleTime: 1000 * 60 * 30, // 30 minutes caching
   });
 };

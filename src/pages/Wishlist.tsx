@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { Heart, Trash2, ShoppingCart, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Heart, Trash2, ShoppingCart } from 'lucide-react';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useProductsByIds } from '@/hooks/useProducts';
 import ProductCard from '@/features/home/components/product-card/ProductCard';
@@ -12,6 +11,8 @@ import Button from '@/components/ui/Button';
 import ROUTES from '@/constants/routes';
 import { toast } from 'react-hot-toast';
 import { Product } from '@/types/domain';
+import { Helmet } from 'react-helmet-async';
+import EmptyState from '@/components/ui/EmptyState';
 
 export const Wishlist: React.FC = () => {
   const { t } = useTranslation();
@@ -44,30 +45,30 @@ export const Wishlist: React.FC = () => {
   // 2. Empty Wishlist state Layout
   if (itemIds.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center text-center font-tajawal select-none">
-        <div className="w-20 h-20 rounded-full bg-muted/30 text-muted-foreground flex items-center justify-center mb-6">
-          <Heart className="h-9 w-9 text-muted-foreground" />
-        </div>
-        <h2 className="text-xl font-black text-primary mb-2">
-          {t('wishlist.empty_title', { defaultValue: 'قائمة المفضلة فارغة حالياً' })}
-        </h2>
-        <p className="text-xs md:text-sm text-muted-foreground max-w-sm mb-8 leading-relaxed">
-          {t('wishlist.empty_desc', {
+      <div className="container mx-auto px-4 py-16">
+        <Helmet>
+          <title>{isRtl ? 'المفضلة | متجر جنان' : 'Wishlist | Jnan Store'}</title>
+          <meta
+            name="description"
+            content={
+              isRtl
+                ? 'قائمة المنتجات المفضلة لديك في متجر جنان'
+                : 'Your saved items list in Jnan Store'
+            }
+          />
+        </Helmet>
+        <EmptyState
+          icon={<Heart className="h-8 w-8 text-gold" />}
+          title={t('wishlist.empty_title', { defaultValue: 'قائمة المفضلة فارغة حالياً' })}
+          description={t('wishlist.empty_desc', {
             defaultValue:
               'لم تقم بإضافة أي منتجات للمفضلة بعد. احفظ منتجاتك المفضلة للعودة إليها لاحقاً.',
           })}
-        </p>
-        <Link to={ROUTES.SHOP}>
-          <Button
-            variant="primary"
-            className="flex items-center gap-2 h-11 px-6 text-xs font-bold rounded-xl shadow-md"
-          >
-            <span>
-              {t('cart.continue_shopping', { defaultValue: 'الذهاب للمتجر وتصفح المنتجات' })}
-            </span>
-            {isRtl ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
-          </Button>
-        </Link>
+          primaryAction={{
+            label: t('cart.continue_shopping', { defaultValue: 'الذهاب للمتجر وتصفح المنتجات' }),
+            to: ROUTES.SHOP,
+          }}
+        />
       </div>
     );
   }
@@ -77,6 +78,18 @@ export const Wishlist: React.FC = () => {
       className="container mx-auto px-4 md:px-6 py-8 font-tajawal text-right"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
+      <Helmet>
+        <title>{isRtl ? 'المفضلة | متجر جنان' : 'Wishlist | Jnan Store'}</title>
+        <meta
+          name="description"
+          content={
+            isRtl
+              ? 'قائمة المنتجات المفضلة لديك في متجر جنان'
+              : 'Your saved items list in Jnan Store'
+          }
+        />
+      </Helmet>
+
       {/* Header and actions */}
       <div className="flex items-center justify-between border-b border-border/20 pb-4 mb-8 select-none">
         <h1 className="text-2xl font-black text-primary leading-tight">
@@ -96,7 +109,7 @@ export const Wishlist: React.FC = () => {
       {/* Grid displays */}
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 select-none">
-          {Array.from({ length: itemIds.length }).map((_, idx) => (
+          {Array.from({ length: Math.max(4, itemIds.length) }).map((_, idx) => (
             <ProductCardSkeleton key={idx} />
           ))}
         </div>
