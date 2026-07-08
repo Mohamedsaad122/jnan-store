@@ -65,9 +65,10 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ isOpen, onClose 
   // Voice Search Recognition logic
   const startVoiceSearch = () => {
     searchAnalytics.trackVoiceSearchActivated();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    /* eslint-enable @typescript-eslint/no-explicit-any */
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
       recognition.lang = isRtl ? 'ar-SA' : 'en-US';
